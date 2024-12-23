@@ -64,7 +64,7 @@ configuració de seguretat, Nginx, selecció de mòduls d'Odoo, i opcionalment m
 
 ### 🔢 1️⃣ **Accedeix a la consola de Lightsail:**
    - Inicia sessió al teu compte d'AWS i ves a la consola de **Lightsail**: https://lightsail.aws.amazon.com/
-   - Les credencials d'accés són al **keeweb** a **AWS 1**
+   - Les credencials d'accés són al **keeweb** a la secciño **Odoos**
 
 ### 🔢 2️⃣ **Crear una nova instància:**
    - Fes clic a **"Create instance"** per iniciar el procés de creació.
