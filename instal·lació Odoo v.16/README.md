@@ -24,6 +24,7 @@ configuració de seguretat, Nginx, selecció de mòduls d'Odoo, i opcionalment m
    - Pregunta si es volen instal·lar dades de mostra (per defecte: "no").
 
 ### 🔢 2️⃣ Selecció de mòduls:
+   - Permet fer una selecció de mòduls o bé instal·lar una selecció bàsica
    - Permet seleccionar mòduls predeterminats d'Odoo (CRM, Comptabilitat, Inventari, etc.).
    - Ofereix seleccionar **Server Tools** addicionals.
 
