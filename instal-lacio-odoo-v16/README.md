@@ -151,13 +151,13 @@ configuració de seguretat, Nginx, selecció de mòduls d'Odoo, i opcionalment m
 ### 🔢 2️⃣ **Donar permisos d'execució a l'script**:
    - Després de descarregar l'script, cal donar-li permisos d'execució:
      ```bash
-     chmod +x installacio-odoo_v16-postgres_v14.sh
+     chmod +x instal-lacio-odoo-v16.sh
      ```
 
 ### 🔢 3️⃣ **Executar l'script**:
    - Executa l'script amb:
      ```bash
-     ./installacio-odoo_v16-postgres_v14.sh
+     ./instal-lacio-odoo-v16.sh
      ```
 <br>
 
