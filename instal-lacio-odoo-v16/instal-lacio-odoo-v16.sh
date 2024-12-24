@@ -58,16 +58,11 @@ if [[ "$install_demo_data" == "s" || "$install_demo_data" == "S" ]]; then
 fi
 
 # Comprovar i esborrar la base de dades i l'usuari si ja existeixen
-sudo su - postgres -c "psql -tc \"SELECT 1 FROM pg_database WHERE datname = '$db_name'\"" | grep -q 1 && \
-  sudo su - postgres -c "psql -c 'DROP DATABASE $db_name;'"
+sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = '$db_name'" | grep -q 1 && \
+  sudo -u postgres psql -c "DROP DATABASE $db_name;"
 
-sudo su - postgres -c "psql -tc \"SELECT 1 FROM pg_roles WHERE rolname = '$db_user'\"" | grep -q 1 && \
-  sudo su - postgres -c "psql -c 'DROP ROLE $db_user;'"
-
-# Crear base de dades i usuari
-sudo su - postgres -c "psql -c \"CREATE DATABASE $db_name;\""
-sudo su - postgres -c "createuser -p 5432 -s $db_user"
-sudo su - postgres -c "psql -c \"ALTER USER $db_user WITH PASSWORD '$db_password';\""
+sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname = '$db_user'" | grep -q 1 && \
+  sudo -u postgres psql -c "DROP ROLE $db_user;"
 
 # Crear fitxer de configuració d'Odoo
 sudo bash -c "cat <<EOL > /etc/odoo.conf
