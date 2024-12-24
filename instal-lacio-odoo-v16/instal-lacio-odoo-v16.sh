@@ -29,21 +29,37 @@ function prompt_yes_no {
   echo "$input_value"
 }
 
+# Comprovar si l'usuari postgres existeix
+function check_postgres_user {
+  if ! id "postgres" &>/dev/null; then
+    echo "Error: L'usuari 'postgres' no existeix. Assegura't que PostgreSQL està instal·lat correctament."
+    exit 1
+  fi
+}
+
 # Funció per gestionar la base de dades
 function manage_database {
   local db_name=$1
   local db_user=$2
   local db_password=$3
 
+  # Comprovar si l'usuari postgres existeix
+  check_postgres_user
+
   # Comprovar i esborrar la base de dades si ja existeix
-  sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = '$db_name'" | grep -q 1 && \
+  if sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = '$db_name'" | grep -q 1; then
+    echo "Base de dades '$db_name' detectada. Esborrant..."
     sudo -u postgres psql -c "DROP DATABASE $db_name;"
+  fi
 
   # Comprovar i esborrar l'usuari si ja existeix
-  sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname = '$db_user'" | grep -q 1 && \
+  if sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname = '$db_user'" | grep -q 1; then
+    echo "Usuari de base de dades '$db_user' detectat. Esborrant..."
     sudo -u postgres psql -c "DROP ROLE $db_user;"
+  fi
 
   # Crear base de dades i usuari
+  echo "Creant base de dades i usuari..."
   sudo -u postgres psql -c "CREATE DATABASE $db_name;"
   sudo -u postgres psql -c "CREATE USER $db_user WITH PASSWORD '$db_password';"
   sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $db_name TO $db_user;"
@@ -54,23 +70,19 @@ function remove_previous_odoo_files {
   local odoo_dir=$1
   local log_dir=$2
 
-  echo "Esborrant fitxers d'Odoo de la instal·lació anterior..."
-
   if [ -d "$odoo_dir" ]; then
+    echo "Directori d'Odoo detectat ($odoo_dir). Esborrant..."
     sudo rm -rf "$odoo_dir"
-    echo "Directori d'Odoo eliminat: $odoo_dir"
   else
-    echo "El directori d'Odoo no existeix: $odoo_dir"
+    echo "El directori d'Odoo no existeix ($odoo_dir)."
   fi
 
   if [ -d "$log_dir" ]; then
+    echo "Directori de logs detectat ($log_dir). Esborrant..."
     sudo rm -rf "$log_dir"
-    echo "Directori de logs eliminat: $log_dir"
   else
-    echo "El directori de logs no existeix: $log_dir"
+    echo "El directori de logs no existeix ($log_dir)."
   fi
-
-  echo "Fitxers d'Odoo anteriors eliminats."
 }
 
 # Demanar el nom de la instància
@@ -101,17 +113,18 @@ if [[ "$install_demo_data" == "s" || "$install_demo_data" == "S" ]]; then
   demo_data="True"
 fi
 
-# Comprovar si cal esborrar fitxers o base de dades d'una instal·lació anterior
-if sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = '$db_name'" | grep -q 1 || \
-   sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname = '$db_user'" | grep -q 1 || \
-   [ -d "/opt/odoo/odoo-server" ] || [ -d "/var/log/odoo" ]; then
-
-  echo "S'ha detectat una instal·lació anterior d'Odoo."
+# Comprovar i esborrar fitxers d'una instal·lació anterior abans de gestionar la base de dades
+if [ -d "/opt/odoo/odoo-server" ] || [ -d "/var/log/odoo" ]; then
+  echo "Fitxers d'instal·lació anterior detectats."
   remove_previous_odoo_files "/opt/odoo/odoo-server" "/var/log/odoo"
 fi
 
 # Gestionar la base de dades
-manage_database "$db_name" "$db_user" "$db_password"
+if sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = '$db_name'" | grep -q 1 || \
+   sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname = '$db_user'" | grep -q 1; then
+  echo "Base de dades o usuari existents detectats."
+  manage_database "$db_name" "$db_user" "$db_password"
+fi
 
 # Crear fitxer de configuració d'Odoo
 sudo bash -c "cat <<EOL > /etc/odoo.conf
