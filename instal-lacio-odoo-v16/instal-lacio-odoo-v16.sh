@@ -269,5 +269,6 @@ echo "Contrasenya de la base de dades: $db_password"
 echo "Correu electrònic de l'administrador: $admin_email"
 echo "Contrasenya de l'administrador: $admin_password"
 echo
-echo "Accedeix a Odoo mitjançant el domini: http://$custom_domain o http://$static_ip:8069"
+echo "Accedeix a Odoo mitjançant el domini: https://$custom_domain o https://$static_ip:8069"
+
 
