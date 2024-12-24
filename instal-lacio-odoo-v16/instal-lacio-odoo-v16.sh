@@ -156,7 +156,8 @@ sudo chmod 777 /var/log/odoo
 
 # Crear fitxer de configuració d'Odoo
 echo "Creant fitxer de configuració d'Odoo..."
-sudo bash -c "cat > /etc/odoo.conf" <<EOL
+sudo bash -c "cat > /etc/odoo.conf"
+<<EOL
 [options]
 admin_passwd = $master_password
 db_host = 127.0.0.1
@@ -179,7 +180,8 @@ sudo chown odoo:odoo /etc/odoo.conf
 
 # Crear servei d'Odoo
 echo "Creant servei d'Odoo..."
-sudo bash -c "cat > /etc/systemd/system/odoo-server.service" <<EOL
+sudo bash -c "cat > /etc/systemd/system/odoo-server.service"
+<<EOL
 [Unit]
 Description=Odoo Service
 Requires=postgresql.service
@@ -210,7 +212,8 @@ sudo apt install nginx -y
 
 # Configuració de Nginx
 echo "Configurant Nginx per Odoo..."
-sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain" <<EOL
+sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain"
+<<EOL
 upstream odoo16 {
     server 127.0.0.1:8069;
 }
@@ -237,6 +240,19 @@ echo "Activant configuració Nginx..."
 sudo ln -s /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
+
+# Funció per esborrar fitxers .deb i .sh
+function delete_deb_and_sh_files {
+  echo "Cercant i esborrant fitxers .deb i .sh al directori arrel..."
+
+  # Busca i elimina fitxers .deb i .sh
+  sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) -exec rm -f {} +
+
+  echo "Tots els fitxers .deb i .sh han estat eliminats del directori arrel."
+}
+
+# Esborrar fitxers .deb i .sh
+delete_deb_and_sh_files
 
 # Mostrar les variables i el missatge final
 mostrar_valors
