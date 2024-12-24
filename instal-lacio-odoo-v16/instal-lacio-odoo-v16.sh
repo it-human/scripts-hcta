@@ -49,8 +49,8 @@ db_password=$(prompt_required "Introdueix la contrasenya de l'usuari de la base 
 admin_email=$(prompt_required "Introdueix el correu electrònic de l'administrador" "it@humancta.org")
 admin_password=$(prompt_required "Introdueix la contrasenya de l'administrador" "$admin_password_default")
 admin_language=$(prompt_required "Introdueix l'idioma" "Català")
-admin_country=$(prompt_required "Introdueix el pa\u00eds" "Espanya")
-install_demo_data=$(prompt_yes_no "Vols instal\u00b7lar dades de mostra?" "n")
+admin_country=$(prompt_required "Introdueix el país" "Espanya")
+install_demo_data=$(prompt_yes_no "Vols instal·lar dades de mostra?" "n")
 
 demo_data="False"
 if [[ "$install_demo_data" == "s" || "$install_demo_data" == "S" ]]; then
