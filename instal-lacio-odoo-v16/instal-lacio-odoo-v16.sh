@@ -48,8 +48,8 @@ db_user=$(prompt_required "Introdueix el nom d'usuari de la base de dades" "$db_
 db_password=$(prompt_required "Introdueix la contrasenya de l'usuari de la base de dades" "$db_password_default")
 admin_email=$(prompt_required "Introdueix el correu electrònic de l'administrador" "it@humancta.org")
 admin_password=$(prompt_required "Introdueix la contrasenya de l'administrador" "$admin_password_default")
-admin_language=$(prompt_required "Introdueix l'idioma" "Catal\u00e0")
-admin_country=$(prompt_required "Introdueix el pa\u00eds" "Spain")
+admin_language=$(prompt_required "Introdueix l'idioma" "Català")
+admin_country=$(prompt_required "Introdueix el pa\u00eds" "Espanya")
 install_demo_data=$(prompt_yes_no "Vols instal\u00b7lar dades de mostra?" "n")
 
 demo_data="False"
