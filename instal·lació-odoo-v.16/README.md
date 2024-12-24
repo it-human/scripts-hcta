@@ -145,7 +145,7 @@ configuració de seguretat, Nginx, selecció de mòduls d'Odoo, i opcionalment m
 ### 🔢 1️⃣ **Baixar l'script amb `wget`**:
    - Per baixar l'script utilitza el següent comandament:
      ```bash
-     wget https://raw.githubusercontent.com/it-human/scripts-hcta/main/instal·lacio-odoo-v.16/installacio-odoo_v16-postgres_v14.sh
+     wget --header="Authorization: token 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" "https://raw.githubusercontent.com/it-human/scripts-hcta/main/instal·lacio-odoo-v.16/installacio-odoo_v16-postgres_v14.sh
      ```
 
 ### 🔢 2️⃣ **Donar permisos d'execució a l'script**:
