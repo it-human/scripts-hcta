@@ -61,20 +61,24 @@ sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
 # Cridar la funció de neteja
 clean_non_system_components
 
-# Funció per demanar dades obligatòries
+# Funció per demanar dades obligatòries amb valor per defecte
 function prompt_required {
   local prompt_text=$1
   local default_value=$2
-  read -p "$prompt_text [${default_value}]: $default_value" input_value
+  # Mostrar el text del prompt amb el valor per defecte entre claudàtors
+  read -p "$prompt_text [${default_value}]: " input_value
+  # Retornar el valor introduït o, si està buit, el valor per defecte
   echo "${input_value:-$default_value}"
 }
 
-# Funció per demanar dades obligatòries
+# Funció per demanar dades obligatòries sense valor per defecte
 function prompt_required_no_default {
   local prompt_text=$1
   local default_value
+  # Mostrar el text del prompt amb el valor per defecte entre claudàtors
   read -p "$prompt_text: " input_value
-  echo "$input_value"
+  # Retornar el valor introduït o, si està buit, el valor per defecte
+  echo "${input_value:-$default_value}"
 }
 
 # Funció per demanar dades amb validació "s/n"
@@ -188,7 +192,7 @@ admin_password=$(prompt_required "Introdueix la contrasenya de l'administrador" 
 
 # Demanar idioma i país amb valors per defecte
 admin_language=$(prompt_required "Introdueix l'idioma" "Català")
-admin_country=$(prompt_required "Introdueix el país" "Spain")
+admin_country=$(prompt_required "Introdueix el país" "Espanya")
 
 # Dades de mostra per defecte NO
 install_demo_data=$(prompt_yes_no "Vols instal·lar dades de mostra? (s/n)" "n")
@@ -201,26 +205,31 @@ else
 fi
 
 # Mostrar els valors seleccionats
+# Colors per als missatges
+YELLOW='\033[1;33m'
+NC='\033[0m' # Reset
+
+# Funció per mostrar els valors seleccionats
 function mostrar_valors {
-  echo "Configuració seleccionada:"
-  echo "  Nom de la instància de Lightsail: $instance_name"
-  echo "  IP estàtica de la instància: $static_ip"
-  echo "  Nom de domini: $custom_domain"
-  echo "  Master Password: $master_password"
-  echo "  Nom de la base de dades: $db_name"
-  echo "  Usuari de la base de dades: $db_user"
-  echo "  Contrasenya de la base de dades: $db_password"
-  echo "  Correu electrònic de l'administrador: $admin_email"
-  echo "  Contrasenya de l'administrador: $admin_password"
-  echo "  Idioma: $admin_language"
-  echo "  País: $admin_country"
-  echo "  Instal·lació de dades de mostra: $demo_data"
-  echo "  Mòduls bàsics instal·lats:"
-  
+  echo -e "Configuració seleccionada:"
+  echo -e "  Nom de la instància de Lightsail: ${YELLOW}$instance_name${NC}"
+  echo -e "  IP estàtica de la instància: ${YELLOW}$static_ip${NC}"
+  echo -e "  Nom de domini: ${YELLOW}$custom_domain${NC}"
+  echo -e "  Master Password: ${YELLOW}$master_password${NC}"
+  echo -e "  Nom de la base de dades: ${YELLOW}$db_name${NC}"
+  echo -e "  Usuari de la base de dades: ${YELLOW}$db_user${NC}"
+  echo -e "  Contrasenya de la base de dades: ${YELLOW}$db_password${NC}"
+  echo -e "  Correu electrònic de l'administrador: ${YELLOW}$admin_email${NC}"
+  echo -e "  Contrasenya de l'administrador: ${YELLOW}$admin_password${NC}"
+  echo -e "  Idioma: ${YELLOW}$admin_language${NC}"
+  echo -e "  País: ${YELLOW}$admin_country${NC}"
+  echo -e "  Instal·lació de dades de mostra: ${YELLOW}$demo_data${NC}"
+  echo -e "  Mòduls bàsics instal·lats:"
+
   # Llista dels mòduls bàsics instal·lats
   modules=("crm" "sales" "purchase" "stock" "account" "mail" "project" "website")
   for module in "${modules[@]}"; do
-    echo "    - $module"
+    echo -e "    - ${YELLOW}$module${NC}"
   done
 
   echo
