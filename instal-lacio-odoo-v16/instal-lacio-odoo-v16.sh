@@ -201,7 +201,14 @@ admin_language=$(prompt_required "Introdueix l'idioma" "Català")
 admin_country=$(prompt_required "Introdueix el país" "Espanya")
 
 # Dades de mostra per defecte NO
-demo_data=$(prompt_yes_no "Vols instal·lar dades de mostra? (s/n)" "n")
+install_demo_data=$(prompt_yes_no "Vols instal·lar dades de mostra? (s/n)" "n")
+
+# Convertir la resposta de "s" o "n" en booleà per la configuració
+if [[ "$install_demo_data" == "s" || "$install_demo_data" == "S" ]]; then
+  demo_data="True"
+else
+  demo_data="False"
+fi
 
 # Funció per mostrar els valors seleccionats
 function mostrar_valors {
