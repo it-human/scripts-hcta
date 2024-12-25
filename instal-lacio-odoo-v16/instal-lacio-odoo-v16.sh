@@ -65,25 +65,17 @@ clean_non_system_components
 function prompt_required {
   local prompt_text=$1
   local default_value=$2
-  # Mostrar el prompt amb el valor per defecte en groc
-  echo -e -n "$prompt_text: ${YELLOW}$default_value${NC}"
-  read input_value
-  echo "${input_value:-$default_value}"
+  read -p "$prompt_text: $default_value " input_value
+  echo ${input_value:-$default_value}
 }
 
 # Funció per demanar dades amb validació "s/n", amb resposta per defecte a "s"
 function prompt_yes_no {
   local prompt_text=$1
   local default_value=$2
-  # Mostrar el prompt amb el valor per defecte en groc
-  echo -e -n "$prompt_text [${YELLOW}$default_value${NC}]:"
-  read input_value
-  # Si no s'introdueix res, utilitzar el valor per defecte
-  input_value=${input_value:-$default_value}
-  echo "$input_value"
+  read -p "$prompt_text [$default_value]: " input_value
+  input_value=${input_value:-$default_value}#!/bin/bash
 }
-
-
 
 # Funció per generar una contrasenya aleatòria de 16 caràcters
 function generate_random_password {
