@@ -62,14 +62,18 @@ sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
 clean_non_system_components
 
 # Funció per demanar dades obligatòries amb valor per defecte
+# Funció per demanar dades obligatòries amb un valor per defecte directament editable
 function prompt_required {
   local prompt_text=$1
   local default_value=$2
-  # Mostrar el text del prompt amb el valor per defecte entre claudàtors
-  read -p "$prompt_text [${default_value}]: " input_value
+
+  # Mostrar el prompt amb el valor per defecte preomplert al camp editable
+  read -e -i "$default_value" -p "$prompt_text: " input_value
+
   # Retornar el valor introduït o, si està buit, el valor per defecte
   echo "${input_value:-$default_value}"
 }
+
 
 # Funció per demanar dades obligatòries sense valor per defecte
 function prompt_required_no_default {
