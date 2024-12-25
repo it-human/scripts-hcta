@@ -237,14 +237,18 @@ function mostrar_valors {
   echo
 }
 
-# Confirmar els valors abans de continuar
 mostrar_valors
 
-read -p "Vols continuar amb aquests valors? (s/n): " confirm
+# Confirmar els valors abans de continuar
+default_confirm="s" # Valor per defecte
+read -p "Vols continuar amb aquests valors? (s/n) [$default_confirm]: " confirm
+confirm=${confirm:-$default_confirm} # Si no es proporciona cap valor, utilitza el per defecte
+
 if [[ $confirm != "s" ]]; then
   echo "Instal·lació cancel·lada."
   exit 1
 fi
+
 
 # Actualitzar el servidor
 echo "Actualitzant el servidor..."
