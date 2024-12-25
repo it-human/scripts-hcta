@@ -3,6 +3,8 @@
 # Colors per als missatges
 BLUE='\033[1;34m'
 YELLOW='\033[1;33m'
+RED='\033[1;31m'
+GREEN='\033[1;32m'
 NC='\033[0m' # Reset
 
 # Funció per revisar i eliminar components que no són del sistema operatiu d'Ubuntu
@@ -15,7 +17,7 @@ function clean_non_system_components {
     sudo -u postgres psql -c "DROP DATABASE IF EXISTS odoo_db;" || true
     sudo -u postgres psql -c "DROP USER IF EXISTS odoo_user;" || true
   else
-    echo -e "${BLUE}No s'ha trobat cap instància de PostgreSQL.${NC}"
+    echo -e "${GREEN}No s'ha trobat cap instància de PostgreSQL.${NC}"
   fi
 
   # Revisar i eliminar PostgreSQL completament
@@ -25,7 +27,7 @@ function clean_non_system_components {
     sudo apt purge postgresql* -y
     sudo rm -rf /etc/postgresql /var/lib/postgresql /var/log/postgresql
   else
-    echo -e "${BLUE}PostgreSQL no està instal·lat.${NC}"
+    echo -e "${GREEN}PostgreSQL no està instal·lat.${NC}"
   fi
 
   # Revisar i eliminar usuaris i grups d'Odoo
@@ -34,7 +36,7 @@ function clean_non_system_components {
     sudo deluser --remove-home odoo || true
     sudo delgroup odoo || true
   else
-    echo -e "${BLUE}No s'ha trobat l'usuari o grup d'Odoo.${NC}"
+    echo -e "${GREEN}No s'ha trobat l'usuari o grup d'Odoo.${NC}"
   fi
 
   # Revisar i eliminar directoris relacionats amb Odoo
@@ -42,7 +44,7 @@ function clean_non_system_components {
     echo -e "${BLUE}Eliminant directoris d'Odoo...${NC}"
     sudo rm -rf /opt/odoo /var/log/odoo /etc/odoo.conf
   else
-    echo -e "${BLUE}No s'han trobat directoris o fitxers d'Odoo.${NC}"
+    echo -e "${GREEN}No s'han trobat directoris o fitxers d'Odoo.${NC}"
   fi
 
   # Netejar paquets no essencials
@@ -55,7 +57,7 @@ function clean_non_system_components {
 sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
   -not -path "/snap/*" -not -path "/proc/*" -not -path "/sys/*" -not -path "/dev/*" \
   -exec rm -f {} + 2>/dev/null || true
-  echo -e "${BLUE}Components no essencials eliminats.${NC}"
+  echo -e "${GREEN}Components no essencials eliminats.${NC}"
 }
 
 # Cridar la funció de neteja
@@ -131,9 +133,9 @@ function configure_ssl {
 
   # Verificar si el certificat s'ha generat correctament
   if sudo certbot certificates | grep -q "$custom_domain"; then
-    echo -e "${BLUE}SSL configurat correctament per al domini $custom_domain.${NC}"
+    echo -e "${GREEN}SSL configurat correctament per al domini $custom_domain.${NC}"
   else
-    echo -e "${YELLOW}Hi ha hagut un problema configurant SSL per al domini $custom_domain.${NC}"
+    echo -e "${RED}Hi ha hagut un problema configurant SSL per al domini $custom_domain.${NC}"
     exit 1
   fi
 }
@@ -150,7 +152,7 @@ function install_basic_modules {
     sudo su - odoo -c "/opt/odoo/odoo-server/venv/bin/python3 /opt/odoo/odoo-server/odoo-bin -c /etc/odoo.conf --xmlrpc-port=8069 -d $db_name -u $module"
   done
 
-  echo -e "${BLUE}Tots els mòduls bàsics s'han instal·lat correctament.${NC}"
+  echo -e "${GREEN}Tots els mòduls bàsics s'han instal·lat correctament.${NC}"
 }
 
 # Demanar el nom de la instància abans de tot
@@ -171,7 +173,7 @@ while true; do
   if validate_ip "$static_ip"; then
     break
   else
-    echo -e "${YELLOW}La IP introduïda no és vàlida. Torna-ho a intentar.${NC}"
+    echo -e "${RED}La IP introduïda no és vàlida. Torna-ho a intentar.${NC}"
   fi
 done
 
@@ -182,7 +184,7 @@ while true; do
   custom_domain="intranet.$custom_domain"
     break
   else
-    echo -e "${YELLOW}El domini introduït no és vàlid. Torna-ho a intentar.${NC}"
+    echo -e "${RED}El domini introduït no és vàlid. Torna-ho a intentar.${NC}"
   fi
 done
 
@@ -199,7 +201,7 @@ admin_language=$(prompt_required "Introdueix l'idioma" "Català")
 admin_country=$(prompt_required "Introdueix el país" "Espanya")
 
 # Dades de mostra per defecte NO
-install_demo_data=$(prompt_yes_no "Vols instal·lar dades de mostra? (s/n)" "n")
+demo_data=$(prompt_yes_no "Vols instal·lar dades de mostra? (s/n)" "n")
 
 # Funció per mostrar els valors seleccionats
 function mostrar_valors {
