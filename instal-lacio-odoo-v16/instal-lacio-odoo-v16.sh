@@ -62,20 +62,26 @@ sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
 clean_non_system_components
 
 # Funció per demanar dades obligatòries
+# Funció per demanar dades obligatòries amb colors al prompt
 function prompt_required {
   local prompt_text=$1
   local default_value=$2
-  read -p "$prompt_text [$default_value]: " input_value
+  echo -en "${prompt_text} ${YELLOW}${default_value}${NC}: "
+  read input_value
   echo ${input_value:-$default_value}
 }
+
 
 # Funció per demanar dades amb validació "s/n", amb resposta per defecte a "s"
 function prompt_yes_no {
   local prompt_text=$1
   local default_value=$2
-  read -p "$prompt_text [$default_value]: " input_value
-  input_value=${input_value:-$default_value}#!/bin/bash
+  echo -en "$prompt_text [${YELLOW}$default_value${NC}]: "
+  read input_value
+  input_value=${input_value:-$default_value}
+  echo "$input_value"
 }
+
 
 # Funció per generar una contrasenya aleatòria de 16 caràcters
 function generate_random_password {
@@ -170,19 +176,20 @@ while true; do
 done
 
 # Demanar la resta de paràmetres amb els valors per defecte calculats
-master_password=$(prompt_required "Introdueix la contrasenya de Master Password: ${YELLOW}${master_password_default}${NC}" "$master_password_default")
-db_name=$(prompt_required "Introdueix el nom de la base de dades: ${YELLOW}${db_name_default}${NC}" "$db_name_default")
-db_user=$(prompt_required "Introdueix el nom d'usuari de la base de dades: ${YELLOW}${db_user_default}${NC}" "$db_user_default")
-db_password=$(prompt_required "Introdueix la contrasenya de l'usuari de la base de dades: ${YELLOW}${db_password_default}${NC}" "$db_password_default")
-admin_email=$(prompt_required "Introdueix el correu electrònic de l'administrador: ${YELLOW}it@humancta.org${NC}" "it@humancta.org")
-admin_password=$(prompt_required "Introdueix la contrasenya de l'administrador: ${YELLOW}${admin_password_default}${NC}" "$admin_password_default")
+master_password=$(prompt_required "Introdueix la contrasenya de Master Password" "$master_password_default")
+db_name=$(prompt_required "Introdueix el nom de la base de dades" "$db_name_default")
+db_user=$(prompt_required "Introdueix el nom d'usuari de la base de dades" "$db_user_default")
+db_password=$(prompt_required "Introdueix la contrasenya de l'usuari de la base de dades" "$db_password_default")
+admin_email=$(prompt_required "Introdueix el correu electrònic de l'administrador" "it@humancta.org")
+admin_password=$(prompt_required "Introdueix la contrasenya de l'administrador" "$admin_password_default")
 
 # Demanar idioma i país amb valors per defecte
-admin_language=$(prompt_required "Introdueix l'idioma: ${YELLOW}Català${NC}" "Català")  # Idioma per defecte Català
-admin_country=$(prompt_required "Introdueix el país: ${YELLOW}Spain${NC}" "Spain")     # País per defecte Spain
+admin_language=$(prompt_required "Introdueix l'idioma" "Català")
+admin_country=$(prompt_required "Introdueix el país" "Spain")
 
 # Dades de mostra per defecte NO
-install_demo_data=$(prompt_yes_no "Vols instal·lar dades de mostra? (s/n): ${YELLOW}n${NC}" "n")
+install_demo_data=$(prompt_required "Vols instal·lar dades de mostra? (s/n)" "n")
+
 
 
 
