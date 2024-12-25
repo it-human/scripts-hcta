@@ -136,6 +136,9 @@ function install_basic_modules {
   echo -e "${BLUE}Tots els mòduls bàsics s'han instal·lat correctament.${NC}"
 }
 
+# Demanar el nom de la instància abans de tot
+instance_name=$(prompt_required "Introdueix el nom de la instància de Lightsail")
+
 # Generar valors per defecte per la base de dades i l'usuari basat en el nom de la instància
 db_name_default="${instance_name}_db"
 db_user_default="${instance_name}_user"
@@ -144,9 +147,6 @@ db_user_default="${instance_name}_user"
 master_password_default=$(generate_random_password)
 db_password_default=$(generate_random_password)
 admin_password_default=$(generate_random_password)
-
-# Demanar el nom de la instància abans de tot
-instance_name=$(prompt_required "Introdueix el nom de la instància de Lightsail")
 
 # Demanar IP i validar
 while true; do
@@ -170,12 +170,12 @@ while true; do
 done
 
 # Demanar la resta de paràmetres amb els valors per defecte calculats
-master_password=$(prompt_required "Introdueix la contrasenya de Master Password: " "${YELLOW}$master_password_default${NC}")
-db_name=$(prompt_required "Introdueix el nom de la base de dades: " "${YELLOW}$db_name_default${NC})")
-db_user=$(prompt_required "Introdueix el nom d'usuari de la base de dades: " "${YELLOW}$db_user_default${NC}")
-db_password=$(prompt_required "Introdueix la contrasenya de l'usuari de la base de dades: " "${YELLOW}$db_password_default${NC}")
-admin_email=$(prompt_required "Introdueix el correu electrònic de l'administrador: " "${YELLOW}it@humancta.org${NC}")
-admin_password=$(prompt_required "Introdueix la contrasenya de l'administrador: " "${YELLOW}$admin_password_default${NC}")
+master_password=$(prompt_required "Introdueix la contrasenya de Master Password: " ${YELLOW}$master_password_default${NC})
+db_name=$(prompt_required "Introdueix el nom de la base de dades: " ${YELLOW}$db_name_default${NC})
+db_user=$(prompt_required "Introdueix el nom d'usuari de la base de dades: " ${YELLOW}$db_user_default${NC})
+db_password=$(prompt_required "Introdueix la contrasenya de l'usuari de la base de dades: " ${YELLOW}$db_password_default${NC})
+admin_email=$(prompt_required "Introdueix el correu electrònic de l'administrador: " ${YELLOW}it@humancta.org${NC})
+admin_password=$(prompt_required "Introdueix la contrasenya de l'administrador: " ${YELLOW}$admin_password_default${NC})
 
 # Demanar idioma i país amb valors per defecte
 admin_language=$(prompt_required "Introdueix l'idioma: " "${YELLOW}Català${NC}")  # Idioma per defecte Català
