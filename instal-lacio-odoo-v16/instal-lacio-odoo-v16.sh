@@ -213,7 +213,7 @@ fi
 # Funció per mostrar els valors seleccionats
 function mostrar_valors {
   echo -e ""
-  echo -e "Configuració seleccionada:"
+  echo -e "${BLUE}Configuració seleccionada:${NC}"
   echo -e "  Nom de la instància de Lightsail: ${YELLOW}$instance_name${NC}"
   echo -e "  IP estàtica de la instància: ${YELLOW}$static_ip${NC}"
   echo -e "  Nom de domini: ${YELLOW}$custom_domain${NC}"
