@@ -170,12 +170,12 @@ while true; do
 done
 
 # Demanar la resta de paràmetres amb els valors per defecte calculats
-master_password=$(prompt_required "Introdueix la contrasenya de Master Password: ${YELLOW}$master_password_default${NC}" "$master_password_default")
-db_name=$(prompt_required "Introdueix el nom de la base de dades: ${YELLOW}$db_name_default${NC}" "$db_name_default")
-db_user=$(prompt_required "Introdueix el nom d'usuari de la base de dades: ${YELLOW}$db_user_default${NC}" "$db_user_default")
-db_password=$(prompt_required "Introdueix la contrasenya de l'usuari de la base de dades: ${YELLOW}$db_password_default${NC}" "$db_password_default")
+master_password=$(prompt_required "Introdueix la contrasenya de Master Password: ${YELLOW}${master_password_default}${NC}" "$master_password_default")
+db_name=$(prompt_required "Introdueix el nom de la base de dades: ${YELLOW}${db_name_default}${NC}" "$db_name_default")
+db_user=$(prompt_required "Introdueix el nom d'usuari de la base de dades: ${YELLOW}${db_user_default}${NC}" "$db_user_default")
+db_password=$(prompt_required "Introdueix la contrasenya de l'usuari de la base de dades: ${YELLOW}${db_password_default}${NC}" "$db_password_default")
 admin_email=$(prompt_required "Introdueix el correu electrònic de l'administrador: ${YELLOW}it@humancta.org${NC}" "it@humancta.org")
-admin_password=$(prompt_required "Introdueix la contrasenya de l'administrador: ${YELLOW}$admin_password_default${NC}" "$admin_password_default")
+admin_password=$(prompt_required "Introdueix la contrasenya de l'administrador: ${YELLOW}${admin_password_default}${NC}" "$admin_password_default")
 
 # Demanar idioma i país amb valors per defecte
 admin_language=$(prompt_required "Introdueix l'idioma: ${YELLOW}Català${NC}" "Català")  # Idioma per defecte Català
