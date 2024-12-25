@@ -197,20 +197,9 @@ admin_country=$(prompt_required "Introdueix el país" "Espanya")
 # Dades de mostra per defecte NO
 install_demo_data=$(prompt_yes_no "Vols instal·lar dades de mostra? (s/n)" "n")
 
-# Convertir la resposta de "s" o "n" en booleà per la configuració
-if [[ "$install_demo_data" == "s" || "$install_demo_data" == "S" ]]; then
-  demo_data="True"
-else
-  demo_data="False"
-fi
-
-# Mostrar els valors seleccionats
-# Colors per als missatges
-YELLOW='\033[1;33m'
-NC='\033[0m' # Reset
-
 # Funció per mostrar els valors seleccionats
 function mostrar_valors {
+  echo -e ""
   echo -e "Configuració seleccionada:"
   echo -e "  Nom de la instància de Lightsail: ${YELLOW}$instance_name${NC}"
   echo -e "  IP estàtica de la instància: ${YELLOW}$static_ip${NC}"
