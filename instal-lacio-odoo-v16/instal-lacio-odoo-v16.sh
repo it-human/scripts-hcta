@@ -95,7 +95,7 @@ function validate_domain {
 # Funció per validar IP
 function validate_ip {
   local ip=$1
-  if [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && [[ $ip -le 255 ]]; then
+  if [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
     return 0 # IP vàlida
   else
     return 1 # IP no vàlida
