@@ -69,6 +69,14 @@ function prompt_required {
   echo "${input_value:-$default_value}"
 }
 
+# Funció per demanar dades obligatòries
+function prompt_required_no_default {
+  local prompt_text=$1
+  local default_value
+  read -p "$prompt_text: " input_value
+  echo "$input_value"
+}
+
 # Funció per demanar dades amb validació "s/n"
 function prompt_yes_no {
   local prompt_text=$1
@@ -138,7 +146,7 @@ function install_basic_modules {
 }
 
 # Demanar el nom de la instància abans de tot
-instance_name=$(prompt_required "Introdueix el nom de la instància de Lightsail")
+instance_name=$(prompt_required_no_default "Introdueix el nom de la instància de Lightsail")
 
 # Generar valors per defecte per la base de dades i l'usuari basat en el nom de la instància
 db_name_default="${instance_name}_db"
@@ -151,7 +159,7 @@ admin_password_default=$(generate_random_password)
 
 # Demanar IP i validar
 while true; do
-  static_ip=$(prompt_required "Introdueix la IP estàtica de la instància")
+  static_ip=$(prompt_required_no_default "Introdueix la IP estàtica de la instància")
   if validate_ip "$static_ip"; then
     break
   else
@@ -161,7 +169,7 @@ done
 
 # Demanar domini i validar
 while true; do
-  custom_domain=$(prompt_required "Introdueix el nom de domini (per exemple, example.com)")
+  custom_domain=$(prompt_required_no_default "Introdueix el nom de domini (per exemple, example.com)")
   if validate_domain "$custom_domain"; then
   custom_domain="intranet.$custom_domain"
     break
@@ -183,10 +191,7 @@ admin_language=$(prompt_required "Introdueix l'idioma" "Català")
 admin_country=$(prompt_required "Introdueix el país" "Spain")
 
 # Dades de mostra per defecte NO
-install_demo_data=$(prompt_required "Vols instal·lar dades de mostra? (s/n)" "n")
-
-
-
+install_demo_data=$(prompt_yes_no "Vols instal·lar dades de mostra? (s/n)" "n")
 
 # Convertir la resposta de "s" o "n" en booleà per la configuració
 if [[ "$install_demo_data" == "s" || "$install_demo_data" == "S" ]]; then
