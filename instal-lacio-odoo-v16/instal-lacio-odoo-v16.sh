@@ -62,25 +62,27 @@ sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
 clean_non_system_components
 
 # Funció per demanar dades obligatòries
-# Funció per demanar dades obligatòries amb colors al prompt
 function prompt_required {
   local prompt_text=$1
   local default_value=$2
-  echo -en "${prompt_text} ${YELLOW}${default_value}${NC}: "
-  read input_value
-  echo ${input_value:-$default_value}
+  # Mostrar el prompt amb el valor per defecte en groc
+  echo -e "$prompt_text: ${YELLOW}$default_value${NC}"
+  read -p "[$default_value]: " input_value
+  echo "${input_value:-$default_value}"
 }
-
 
 # Funció per demanar dades amb validació "s/n", amb resposta per defecte a "s"
 function prompt_yes_no {
   local prompt_text=$1
   local default_value=$2
-  echo -en "$prompt_text [${YELLOW}$default_value${NC}]: "
-  read input_value
+  # Mostrar el prompt amb el valor per defecte en groc
+  echo -e "$prompt_text [${YELLOW}$default_value${NC}]:"
+  read -p "[$default_value]: " input_value
+  # Si no s'introdueix res, utilitzar el valor per defecte
   input_value=${input_value:-$default_value}
   echo "$input_value"
 }
+
 
 
 # Funció per generar una contrasenya aleatòria de 16 caràcters
