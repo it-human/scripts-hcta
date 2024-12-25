@@ -52,8 +52,9 @@ function clean_non_system_components {
 
   # Eliminar fitxers sobrants
   echo -e "${BLUE}Eliminant fitxers sobrants...${NC}"
-  sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) -exec rm -f {} + || true
-
+sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
+  -not -path "/snap/*" -not -path "/proc/*" -not -path "/sys/*" -not -path "/dev/*" \
+  -exec rm -f {} + 2>/dev/null || true
   echo -e "${BLUE}Components no essencials eliminats.${NC}"
 }
 
