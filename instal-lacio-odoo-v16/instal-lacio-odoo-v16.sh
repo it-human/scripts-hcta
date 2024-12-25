@@ -160,8 +160,9 @@ done
 
 # Demanar domini i validar
 while true; do
-  custom_domain="intranet."$(prompt_required "Introdueix el nom de domini (per exemple, example.com)")
+  custom_domain=$(prompt_required "Introdueix el nom de domini (per exemple, example.com)")
   if validate_domain "$custom_domain"; then
+  custom_domain="intranet.$custom_domain"
     break
   else
     echo -e "${YELLOW}El domini introduït no és vàlid. Torna-ho a intentar.${NC}"
