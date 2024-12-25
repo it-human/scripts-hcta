@@ -136,9 +136,6 @@ function install_basic_modules {
   echo -e "${BLUE}Tots els mòduls bàsics s'han instal·lat correctament.${NC}"
 }
 
-# Demanar el nom de la instància abans de tot
-instance_name=$(prompt_required "Introdueix el nom de la instància de Lightsail")
-
 # Generar valors per defecte per la base de dades i l'usuari basat en el nom de la instància
 db_name_default="${instance_name}_db"
 db_user_default="${instance_name}_user"
@@ -147,6 +144,9 @@ db_user_default="${instance_name}_user"
 master_password_default=$(generate_random_password)
 db_password_default=$(generate_random_password)
 admin_password_default=$(generate_random_password)
+
+# Demanar el nom de la instància abans de tot
+instance_name=$(prompt_required "Introdueix el nom de la instància de Lightsail")
 
 # Demanar IP i validar
 while true; do
