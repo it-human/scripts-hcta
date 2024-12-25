@@ -65,7 +65,7 @@ clean_non_system_components
 function prompt_required {
   local prompt_text=$1
   local default_value=$2
-  read -p "$prompt_text: $default_value "input_value
+  read -p "$prompt_text: $default_value" input_value
   echo ${input_value:-$default_value}
 }
 
@@ -73,7 +73,7 @@ function prompt_required {
 function prompt_yes_no {
   local prompt_text=$1
   local default_value=$2
-  read -p "$prompt_text [$default_value]: "input_value
+  read -p "$prompt_text [$default_value]:" input_value
   input_value=${input_value:-$default_value}#!/bin/bash
 }
 
