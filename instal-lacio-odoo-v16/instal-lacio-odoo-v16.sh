@@ -232,12 +232,21 @@ sudo apt -y install postgresql-14 postgresql-client-14
 # Creació de la base de dades i usuari PostgreSQL per Odoo
 echo ""
 echo -e "${BLUE}Esborrant i creant base de dades i usuari PostgreSQL per Odoo previs, si hi són...${NC}"
+
+# Finalitzar connexions actives i eliminar la base de dades
+sudo su - postgres -c "psql -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$db_name';\""
 sudo su - postgres -c "psql -c \"DROP DATABASE IF EXISTS $db_name;\""
+
+# Eliminar l'usuari anterior si existeix
 sudo su - postgres -c "psql -c \"DROP USER IF EXISTS $db_user;\""
+
+# Crear la nova base de dades i usuari
 sudo su - postgres -c "psql -c \"CREATE DATABASE $db_name;\""
 sudo su - postgres -c "psql -c \"CREATE USER $db_user WITH PASSWORD '$db_password';\""
 sudo su - postgres -c "psql -c \"ALTER USER $db_user WITH SUPERUSER;\""
+
 echo -e "${GREEN}Base de dades $db_name i usuari $db_user creats correctament.${NC}"
+
 
 # Configurar autenticació PostgreSQL
 echo ""
