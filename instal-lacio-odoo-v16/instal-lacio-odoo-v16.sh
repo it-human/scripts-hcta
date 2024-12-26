@@ -81,21 +81,34 @@ function configure_ssl {
   fi
 }
 
-# Funció per instal·lar mòduls bàsics en Odoo
-function install_basic_modules {
-  echo ""
-  echo -e "${BLUE}Instal·lant mòduls bàsics a Odoo...${NC}"
+# Funció per clonar repositoris amb reintents
+function clone_repository_with_retries {
+  local repo_url=$1       # URL del repositori
+  local target_dir=$2     # Directori de destí
+  local branch_name=$3    # Nom de la branca a clonar
+  local retry_limit=5     # Nombre màxim de reintents
 
-  # Instal·lar els mòduls utilitzant la interfície XML-RPC d'Odoo
-  modules=("crm" "sales" "purchase" "stock" "account" "mail" "project" "website")
-  
-  for module in "${modules[@]}"; do
-    echo "Intentant instal·lar mòdul: $module"
-    sudo su - odoo -c "/opt/odoo/odoo-server/venv/bin/python3 /opt/odoo/odoo-server/odoo-bin -c /etc/odoo.conf -d $db_name -u $module" || echo "Error instal·lant $module"
+  echo -e "${BLUE}Clonant el repositori: $repo_url a $target_dir...${NC}"
+
+  local retry_count=0
+  sudo rm -rf "$target_dir"  # Eliminar el directori existent si cal
+
+  while [ $retry_count -lt $retry_limit ]; do
+    echo -e "${BLUE}Intentant clonar el repositori (Intent $((retry_count + 1))/$retry_limit)...${NC}"
+    sudo su - odoo -c "git clone $repo_url --depth 1 --branch $branch_name --single-branch $target_dir"
+
+    if [ $? -eq 0 ]; then
+      echo -e "${GREEN}Repositori clonado correctament: $repo_url.${NC}"
+      return 0
+    else
+      echo -e "${YELLOW}Error al clonar el repositori. Reintentant en 5 segons...${NC}"
+      sleep 5
+      retry_count=$((retry_count + 1))
+    fi
   done
 
-
-  echo -e "${GREEN}Tots els mòduls bàsics s'han instal·lat correctament.${NC}"
+  echo -e "${RED}No s'ha pogut clonar el repositori després de $retry_limit intents: $repo_url.${NC}"
+  return 1
 }
 
 # Demanar el nom de la instància abans de tot
@@ -157,7 +170,6 @@ else
 fi
 
 # Funció per mostrar els valors seleccionats
-function mostrar_valors {
   echo -e ""
   echo -e "${BLUE}Configuració seleccionada:${NC}"
   echo -e "  Nom de la instància de Lightsail: ${YELLOW}$instance_name${NC}"
@@ -173,15 +185,11 @@ function mostrar_valors {
   echo -e "  País: ${YELLOW}$admin_country${NC}"
   echo -e "  Instal·lació de dades de mostra: ${YELLOW}$demo_data${NC}"
   echo -e "  Mòduls bàsics instal·lats:"
-
   # Llista dels mòduls bàsics instal·lats
   modules=("crm" "sales" "purchase" "stock" "account" "mail" "project" "website")
   for module in "${modules[@]}"; do
     echo -e "    - ${YELLOW}$module${NC}"
   done
-}
-
-mostrar_valors
 
 # Confirmar els valors abans de continuar
 echo ""
@@ -262,28 +270,8 @@ sudo adduser --system --group --home=/opt/odoo --shell=/bin/bash odoo
 # Clonar el repositori Odoo 16
 echo ""
 echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
-RETRY_LIMIT=5  # Nombre màxim de reintents
-RETRY_COUNT=0
-sudo rm -rf /opt/odoo/odoo-server
-# Bucle per intentar clonar
-while [ $RETRY_COUNT -lt $RETRY_LIMIT ]; do
-  echo -e "${BLUE}Intentant clonar el repositori (Intent $((RETRY_COUNT + 1))/$RETRY_LIMIT)...${NC}"
-  sudo su - odoo -c "git clone https://github.com/odoo/odoo.git --depth 1 --branch 16.0 --single-branch /opt/odoo/odoo-server"
-
-  if [ $? -eq 0 ]; then
-    echo -e "${GREEN}Repositori clonado correctament.${NC}"
-    break
-  else
-    echo -e "${YELLOW}Error al clonar el repositori. Reintentant en 5 segons...${NC}"
-    sleep 5
-    RETRY_COUNT=$((RETRY_COUNT + 1))
-  fi
-done
-# Si arriba al límit de reintents, mostrar error
-if [ $RETRY_COUNT -eq $RETRY_LIMIT ]; then
-  echo -e "${RED}No s'ha pogut clonar el repositori després de $RETRY_LIMIT intents.${NC}"
-  exit 1
-fi
+# Clonar el repositori Odoo 16 en 5 intents
+clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server" "16.0"
 
 # Crear entorn virtual de Python
 echo ""
@@ -354,7 +342,12 @@ sudo systemctl start odoo-server
 sudo systemctl enable odoo-server
 
 # Instal·lar mòduls bàsics
-install_basic_modules
+# Bucle per clonar cada mòdul directament
+for module in "${modules[@]}"; do
+  echo -e "${BLUE}Clonant el mòdul: $module${NC}"
+  clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server/addons/$module" "16.0"
+done
+
 
 # Instal·lació de Nginx
 echo ""
