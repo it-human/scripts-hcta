@@ -275,17 +275,21 @@ sudo npm install -g rtlcss
 
 # Instal·lació de Wkhtmltopdf
 echo ""
+echo -e "${BLUE}Instal·lant dependències per Wkhtmltopdf...${NC}"
+sudo apt-get install -y fontconfig libjpeg-turbo8 libxrender1 xfonts-75dpi xfonts-base
 echo -e "${BLUE}Instal·lant Wkhtmltopdf...${NC}"
 wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || true
 sudo apt-get install -f -y
+sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || true
 
 # Instal·lació de PostgreSQL 14
 echo ""
 echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
-curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
-echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /usr/share/keyrings/postgresql-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/postgresql-keyring.gpg] http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
 sudo apt update
+sudo apt --fix-broken install -y
 sudo apt -y install postgresql-14 postgresql-client-14
 
 # Creació de la base de dades i usuari PostgreSQL per Odoo
