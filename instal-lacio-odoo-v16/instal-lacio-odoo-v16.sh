@@ -50,8 +50,37 @@ function clean_non_system_components {
 
   # Netejar paquets no essencials
   echo -e "${BLUE}Eliminant paquets no essencials...${NC}"
+
+  # 1. Reparar dependències trencades
+  sudo apt --fix-broken install -y
+
+  # 2. Forçar la desinstal·lació de paquets problemàtics (com wkhtmltox)
+  echo -e "${BLUE}Eliminant paquets problemàtics...${NC}"
+  sudo dpkg --purge wkhtmltox || true
+
+  # 3. Tornar a instal·lar paquets necessaris per assegurar que estiguin en bon estat
+  echo -e "${BLUE}Reinstal·lant wkhtmltox si és necessari...${NC}"
+  sudo apt install -f wkhtmltox -y || true
+
+  # 4. Eliminar fitxers de bloqueig per si hi ha processos bloquejats
+  echo -e "${BLUE}Eliminant fitxers de bloqueig...${NC}"
+  sudo rm -rf /var/lib/dpkg/lock
+  sudo rm -rf /var/lib/dpkg/lock-frontend
+  sudo rm -rf /var/cache/apt/archives/lock
+
+  # 5. Reparar configuracions de dpkg
+  echo -e "${BLUE}Reconfigurant paquets amb dpkg...${NC}"
+  sudo dpkg --configure -a
+
+  # 6. Netejar paquets no essencials
+  echo -e "${BLUE}Eliminant paquets no essencials...${NC}"
   sudo apt autoremove -y
   sudo apt autoclean
+
+  # 7. Actualitzar l'estat del sistema
+  echo -e "${BLUE}Actualitzant el sistema...${NC}"
+  sudo apt update -y
+  sudo apt upgrade -y
 
   # Eliminar fitxers sobrants
   echo -e "${BLUE}Eliminant fitxers sobrants...${NC}"
