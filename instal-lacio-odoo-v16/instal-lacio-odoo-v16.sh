@@ -259,6 +259,7 @@ sudo adduser --system --group --home=/opt/odoo --shell=/bin/bash odoo
 # Clonar el repositori Odoo 16
 echo ""
 echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
+sudo rm -rf /opt/odoo/odoo-server
 sudo su - odoo -c "git clone https://github.com/odoo/odoo.git --depth 1 --branch 16.0 --single-branch /opt/odoo/odoo-server"
 
 # Crear entorn virtual de Python
