@@ -50,7 +50,6 @@ function clean_non_system_components {
 
   # Netejar paquets no essencials
   echo -e "${BLUE}Eliminant paquets no essencials...${NC}"
-  sudo apt --fix-broken install -y
   sudo apt autoremove -y
   sudo apt autoclean
 
