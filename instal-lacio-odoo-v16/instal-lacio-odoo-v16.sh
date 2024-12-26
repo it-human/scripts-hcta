@@ -219,12 +219,16 @@ echo -e "${BLUE}Instal·lant llibreries necessàries...${NC}"
 sudo apt update
 sudo apt install -y vim curl wget gpg git gnupg2 software-properties-common apt-transport-https lsb-release ca-certificates build-essential python3 python3-pip python3-dev python3-venv python3-wheel libfreetype6-dev libxml2-dev libzip-dev libsasl2-dev python3-setuptools libjpeg-dev zlib1g-dev libpq-dev libxslt1-dev libldap2-dev libtiff5-dev libopenjp2-7-dev fontconfig fonts-dejavu-core fonts-dejavu-mono libfontconfig1 libfontenc1 libjpeg-turbo8 libxrender1 x11-common xfonts-75dpi xfonts-base xfonts-encodings xfonts-utils ssl-cert
 
-
-# Instal·lació de Node.js i NPM
+# Instal·lació de Node.js i NPM amb les últimes versions
 echo ""
-echo -e "${BLUE}Instal·lant Node.js i NPM...${NC}"
-sudo apt install nodejs npm node-less xfonts-75dpi xfonts-base fontconfig -y
-sudo npm install -g rtlcss
+echo -e "${BLUE}Instal·lant Node.js i NPM amb les últimes versions...${NC}"
+latest_node_version=$(curl -sL https://nodejs.org/dist/latest/ | grep -o 'v[0-9.]*' | head -n1)
+latest_npm_version=$(npm view npm version)
+echo "Última versió de Node.js: $latest_node_version"
+echo "Última versió de NPM: $latest_npm_version"
+sudo apt install nodejs npm -y
+sudo apt install xfonts-75dpi xfonts-base fontconfig -y
+sudo npm install -g rtlcss node-less@$latest_node_version
 
 # Instal·lació de PostgreSQL 14
 echo ""
