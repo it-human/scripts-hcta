@@ -224,7 +224,7 @@ echo ""
 echo -e "${BLUE}Instal·lant Node.js i NPM (versió 18.x)...${NC}"
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt-get install -y nodejs
-sudo npm install -g npm@latest
+sudo npm install -g npm@9
 sudo apt-get install -y xfonts-75dpi xfonts-base fontconfig
 sudo npm install -g rtlcss less
 sudo apt autoremove -y
