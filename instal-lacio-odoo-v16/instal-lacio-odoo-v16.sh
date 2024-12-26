@@ -325,7 +325,7 @@ sudo systemctl enable odoo-server
 
 # Instal·lar mòduls bàsics
 for module in "${modules[@]}"; do
-  echo -e "${BLUE}Clonant el mòdul: $module${NC}"
+  echo -e "${BLUE}Clonant el mòdul: ${YELLOW}$module${NC}"
   clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server/addons/$module" "16.0"
 done
 
