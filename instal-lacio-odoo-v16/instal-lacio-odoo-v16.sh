@@ -99,11 +99,13 @@ function install_basic_modules {
 
 # Demanar el nom de la instància abans de tot
 echo ""
-instance_name=$(prompt_required_no_default "Introdueix el nom de la instància de Lightsail en minúscules")
+instance_name=$(prompt_required_no_default "Introdueix el nom de la instància de Lightsail")
 
 # Generar valors per defecte per la base de dades i l'usuari basat en el nom de la instància
-db_name_default="${instance_name//[-]/_}_db"
-db_user_default="${instance_name//[-]/_}_user"
+# Assignar valors per defecte i convertir a minúscules
+db_name_default=$(echo "${instance_name//[-]/_}_db" | tr '[:upper:]' '[:lower:]')
+db_user_default=$(echo "${instance_name//[-]/_}_user" | tr '[:upper:]' '[:lower:]')y
+
 
 # Generar contrasenyes aleatòries per defecte
 master_password_default=$(generate_random_password)
