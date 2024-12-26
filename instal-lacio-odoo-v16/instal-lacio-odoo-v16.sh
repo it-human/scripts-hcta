@@ -344,16 +344,10 @@ sudo apt install nginx -y
 # Configuració de Nginx
 echo ""
 echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
-# Esborrar configuracions antigues si existeixen
-  if [ -f "/etc/nginx/sites-enabled/$custom_domain" ]; then
-    echo -e "${YELLOW}Eliminant configuració existent per $custom_domain...${NC}"
-    sudo rm -f /etc/nginx/sites-enabled/$custom_domain
-  fi
-
-  if [ -f "/etc/nginx/sites-available/$custom_domain" ]; then
-    echo -e "${YELLOW}Eliminant configuració existent per $custom_domain a sites-available...${NC}"
-    sudo rm -f /etc/nginx/sites-available/$custom_domain
-  fi
+# Elimina configuracions anteriors si existeixen
+sudo rm -f /etc/nginx/sites-available/$custom_domain
+sudo rm -f /etc/nginx/sites-enabled/$custom_domain
+# Escriu la nova configuració
 sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
 upstream odoo16 {
     server 127.0.0.1:8069;
@@ -371,7 +365,7 @@ server {
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 EOL"
