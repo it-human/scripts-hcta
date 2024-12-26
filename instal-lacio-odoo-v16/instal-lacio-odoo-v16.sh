@@ -274,8 +274,7 @@ sudo chmod 777 /var/log/odoo
 # Crear fitxer de configuració d'Odoo
 echo ""
 echo -e "${BLUE}Creant fitxer de configuració d'Odoo...${NC}"
-sudo bash -c "cat > /etc/odoo.conf"
-<<EOL
+sudo bash -c "cat > /etc/odoo.conf <<EOL
 [options]
 admin_passwd = $master_password
 db_host = 127.0.0.1
@@ -293,14 +292,13 @@ demo_data = $demo_data
 instance_name = $instance_name
 static_ip = $static_ip
 port = 8069
-EOL
+EOL"
 sudo chown odoo:odoo /etc/odoo.conf
 
 # Crear servei d'Odoo
 echo ""
 echo -e "${BLUE}Creant servei d'Odoo...${NC}"
-sudo bash -c "cat > /etc/systemd/system/odoo-server.service"
-<<EOL
+sudo bash -c "cat > /etc/systemd/system/odoo-server.service <<EOL
 [Unit]
 Description=Odoo Service
 Requires=postgresql.service
@@ -317,7 +315,7 @@ StandardOutput=journal+console
 
 [Install]
 WantedBy=multi-user.target
-EOL
+EOL "
 
 # Iniciar i habilitar el servei
 echo ""
@@ -337,8 +335,7 @@ sudo apt install nginx -y
 # Configuració de Nginx
 echo ""
 echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
-sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain"
-<<EOL
+sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
 upstream odoo16 {
     server 127.0.0.1:8069;
 }
@@ -358,7 +355,7 @@ server {
         proxy_set_header X-Forwarded-Proto https;
     }
 }
-EOL
+EOL "
 
 # Activar configuració Nginx
 echo ""
