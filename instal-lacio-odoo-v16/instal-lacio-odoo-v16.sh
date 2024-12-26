@@ -290,8 +290,8 @@ echo ""
 echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
 curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /usr/share/keyrings/postgresql-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/postgresql-keyring.gpg] http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-sudo apt update
 sudo apt --fix-broken install -y
+sudo apt update
 sudo apt -y install postgresql-14 postgresql-client-14
 
 # Creació de la base de dades i usuari PostgreSQL per Odoo
@@ -307,7 +307,7 @@ echo -e "${BLUE}Configurant autenticació PostgreSQL...${NC}"
 sudo bash -c "echo 'local   all             all                                     md5' >> /etc/postgresql/14/main/pg_hba.conf"
 sudo systemctl restart postgresql
 
-# Creació de l'usuari Odoo13.36.135.74
+# Creació de l'usuari Odoo
 echo ""
 echo -e "${BLUE}Creant usuari Odoo al sistema...${NC}"
 sudo adduser --system --group --home=/opt/odoo --shell=/bin/bash odoo
@@ -440,7 +440,6 @@ function delete_deb_and_sh_files {
 
   # Busca i elimina fitxers .deb i .sh
   sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) -exec rm -f {} +
-
   echo -e "${GREEN}Tots els fitxers .deb i .sh han estat eliminats del directori arrel.${NC}"
 }
 
