@@ -90,9 +90,10 @@ function install_basic_modules {
   modules=("crm" "sales" "purchase" "stock" "account" "mail" "project" "website")
   
   for module in "${modules[@]}"; do
-    echo -e "${BLUE}Instal·lant mòdul: ${YELLOW}$module${NC}"
-    sudo su - odoo -c "/opt/odoo/odoo-server/venv/bin/python3 /opt/odoo/odoo-server/odoo-bin -c /etc/odoo.conf --xmlrpc-port=8069 -d $db_name -u $module"
+    echo "Intentant instal·lar mòdul: $module"
+    sudo su - odoo -c "/opt/odoo/odoo-server/venv/bin/python3 /opt/odoo/odoo-server/odoo-bin -c /etc/odoo.conf -d $db_name -u $module" || echo "Error instal·lant $module"
   done
+
 
   echo -e "${GREEN}Tots els mòduls bàsics s'han instal·lat correctament.${NC}"
 }
