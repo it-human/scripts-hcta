@@ -99,7 +99,7 @@ function install_basic_modules {
 
 # Demanar el nom de la instància abans de tot
 echo ""
-instance_name=$(prompt_required_no_default "Introdueix el nom de la instància de Lightsail")
+instance_name=$(prompt_required_no_default "Introdueix el nom de la instància de Lightsail en minúscules")
 
 # Generar valors per defecte per la base de dades i l'usuari basat en el nom de la instància
 db_name_default="${instance_name//[-]/_}_db"
