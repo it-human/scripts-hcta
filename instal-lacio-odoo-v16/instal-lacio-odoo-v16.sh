@@ -332,7 +332,7 @@ done
 # Instal·lació de Nginx
 echo ""
 echo -e "${BLUE}Instal·lant Nginx...${NC}"
-sudo apt install nginx -y
+sudo apt install -y nginx
 
 # Configuració de Nginx
 echo ""
@@ -340,6 +340,7 @@ echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
 # Elimina configuracions anteriors si existeixen
 sudo rm -f /etc/nginx/sites-available/$custom_domain
 sudo rm -f /etc/nginx/sites-enabled/$custom_domain
+
 # Escriu la nova configuració
 sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
 upstream odoo16 {
@@ -366,23 +367,26 @@ EOL"
 # Activar configuració Nginx
 echo ""
 echo -e "${BLUE}Activant configuració Nginx...${NC}"
-sudo ln -s /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/
-sudo nginx -t
+sudo ln -sf /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/
+
+# Verificar configuració de Nginx
+if ! sudo nginx -t; then
+  echo -e "${RED}Error en la configuració de Nginx. Comprova els logs.${NC}"
+  exit 1
+fi
 
 # Configurar SSL amb Let's Encrypt
-  echo ""
-  echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
-  # Instal·lar Certbot
-  sudo apt install certbot python3-certbot-nginx -y
-  # Generar certificat SSL per al domini
-  sudo certbot --nginx --non-interactive --agree-tos -m "$admin_email" -d "$custom_domain"
-  # Verificar si el certificat s'ha generat correctament
-  if sudo certbot certificates | grep -q "$custom_domain"; then
-    echo -e "${GREEN}SSL configurat correctament per al domini $custom_domain.${NC}"
-  else
-    echo -e "${RED}Hi ha hagut un problema configurant SSL per al domini $custom_domain.${NC}"
-    exit 1
-  fi
+echo ""
+echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
+# Instal·lar Certbot
+sudo apt install -y certbot python3-certbot-nginx
+# Generar certificat SSL per al domini
+if ! sudo certbot --nginx --non-interactive --agree-tos -m "$admin_email" -d "$custom_domain"; then
+  echo -e "${RED}Hi ha hagut un problema configurant SSL per al domini $custom_domain.${NC}"
+  exit 1
+else
+  echo -e "${GREEN}SSL configurat correctament per al domini $custom_domain.${NC}"
+fi
 
 # Reiniciar Nginx per aplicar els canvis
 sudo systemctl restart nginx
