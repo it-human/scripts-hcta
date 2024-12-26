@@ -69,10 +69,8 @@ clean_non_system_components
 function prompt_required {
   local prompt_text=$1
   local default_value=$2
-
   # Mostrar el prompt amb el valor per defecte preomplert al camp editable
   read -e -i "$default_value" -p "$prompt_text: " input_value
-
   # Retornar el valor introduït o, si està buit, el valor per defecte
   echo "${input_value:-$default_value}"
 }
@@ -249,42 +247,42 @@ read -p "Vols continuar amb aquests valors? (s/n) [$default_confirm]: " confirm
 # Si l'usuari prem només Enter, utilitza 's', si escriu qualsevol altra cosa, utilitza 'n'
 confirm=${confirm:-$default_confirm}
 if [[ $confirm != "s" ]]; then
-  echo "Instal·lació cancel·lada."
+  echo -e "${RED}Instal·lació cancel·lada.${NC}"
   exit 1
 fi
 
 # Actualitzar el servidor
 echo ""
-echo "${BLUE}Actualitzant el servidor...${NC}"
+echo -e "${BLUE}Actualitzant el servidor...${NC}"
 sudo apt update -y && sudo apt upgrade -y
 
 # Instal·lació de seguretat SSH i Fail2ban
 echo ""
-echo "${BLUE}Instal·lant seguretat SSH i Fail2ban...${NC}"
+echo -e "${BLUE}Instal·lant seguretat SSH i Fail2ban...${NC}"
 sudo apt-get install openssh-server fail2ban -y
 
 # Instal·lació de llibreries necessàries
 echo ""
-echo "${BLUE}Instal·lant llibreries necessàries...${NC}"
+echo -e "${BLUE}Instal·lant llibreries necessàries...${NC}"
 sudo apt install vim curl wget gpg git gnupg2 software-properties-common apt-transport-https lsb-release ca-certificates -y
 sudo apt install build-essential wget git python3 python3-pip python3-dev python3-venv python3-wheel libfreetype6-dev libxml2-dev libzip-dev libsasl2-dev python3-setuptools libjpeg-dev zlib1g-dev libpq-dev libxslt1-dev libldap2-dev libtiff5-dev libopenjp2-7-dev -y
 
 # Instal·lació de Node.js i NPM
 echo ""
-echo "${BLUE}Instal·lant Node.js i NPM...${NC}"
+echo -e "${BLUE}Instal·lant Node.js i NPM...${NC}"
 sudo apt install nodejs npm node-less xfonts-75dpi xfonts-base fontconfig -y
 sudo npm install -g rtlcss
 
 # Instal·lació de Wkhtmltopdf
 echo ""
-echo "${BLUE}Instal·lant Wkhtmltopdf...${NC}"
+echo -e "${BLUE}Instal·lant Wkhtmltopdf...${NC}"
 wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
 sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb
 sudo apt-get install -f -y
 
 # Instal·lació de PostgreSQL 14
 echo ""
-echo "${BLUE}Instal·lant PostgreSQL 14...${NC}"
+echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
 curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
 echo "deb http://apt.postgresql.org/pub/repos/apt/ lsb_release -cs-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
 sudo apt update
@@ -292,37 +290,37 @@ sudo apt -y install postgresql-14 postgresql-client-14
 
 # Creació de la base de dades i usuari PostgreSQL per Odoo
 echo ""
-echo "${BLUE}Creant base de dades i usuari PostgreSQL per Odoo...${NC}"
+echo -e "${BLUE}Creant base de dades i usuari PostgreSQL per Odoo...${NC}"
 sudo su - postgres -c "psql -c \"CREATE DATABASE $db_name;\""
 sudo su - postgres -c "createuser -p 5432 -s $db_user"
 sudo su - postgres -c "psql -c \"ALTER USER $db_user WITH PASSWORD '$db_password';\""
 
 # Configurar autenticació PostgreSQL
 echo ""
-echo "${BLUE}Configurant autenticació PostgreSQL...${NC}"
+echo -e "${BLUE}Configurant autenticació PostgreSQL...${NC}"
 sudo bash -c "echo 'local   all             all                                     md5' >> /etc/postgresql/14/main/pg_hba.conf"
 sudo systemctl restart postgresql
 
-# Creació de l'usuari Odoo
+# Creació de l'usuari Odoo13.36.135.74
 echo ""
-echo "${BLUE}Creant usuari Odoo al sistema...${NC}"
+echo -e "${BLUE}Creant usuari Odoo al sistema...${NC}"
 sudo adduser --system --group --home=/opt/odoo --shell=/bin/bash odoo
 
 # Clonar el repositori Odoo 16
 echo ""
-echo "${BLUE}Clonant el repositori Odoo 16...${NC}"
+echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
 sudo su - odoo -c "git clone https://github.com/odoo/odoo.git --depth 1 --branch 16.0 --single-branch /opt/odoo/odoo-server"
 
 # Crear entorn virtual de Python
 echo ""
-echo "${BLUE}Creant entorn virtual de Python...${NC}"
+echo -e "${BLUE}Creant entorn virtual de Python...${NC}"
 sudo su - odoo -c "python3 -m venv /opt/odoo/odoo-server/venv"
 sudo su - odoo -c "/opt/odoo/odoo-server/venv/bin/pip install wheel"
 sudo su - odoo -c "/opt/odoo/odoo-server/venv/bin/pip install -r /opt/odoo/odoo-server/requirements.txt"
 
 # Crear directori de logs
 echo ""
-echo "${BLUE}Creant directori de logs...${NC}"
+echo -e "${BLUE}Creant directori de logs...${NC}"
 sudo mkdir /var/log/odoo
 sudo touch /var/log/odoo/odoo-server.log
 sudo chown odoo:odoo /var/log/odoo -R
@@ -330,7 +328,7 @@ sudo chmod 777 /var/log/odoo
 
 # Crear fitxer de configuració d'Odoo
 echo ""
-echo "${BLUE}Creant fitxer de configuració d'Odoo...${NC}"
+echo -e "${BLUE}Creant fitxer de configuració d'Odoo...${NC}"
 sudo bash -c "cat > /etc/odoo.conf"
 <<EOL
 [options]
@@ -355,7 +353,7 @@ sudo chown odoo:odoo /etc/odoo.conf
 
 # Crear servei d'Odoo
 echo ""
-echo "${BLUE}Creant servei d'Odoo...${NC}"
+echo -e "${BLUE}Creant servei d'Odoo...${NC}"
 sudo bash -c "cat > /etc/systemd/system/odoo-server.service"
 <<EOL
 [Unit]
@@ -378,7 +376,7 @@ EOL
 
 # Iniciar i habilitar el servei
 echo ""
-echo "${BLUE}Iniciant i habilitant el servei d'Odoo...${NC}"
+echo -e "${BLUE}Iniciant i habilitant el servei d'Odoo...${NC}"
 sudo systemctl daemon-reload
 sudo systemctl start odoo-server
 sudo systemctl enable odoo-server
@@ -388,12 +386,12 @@ install_basic_modules
 
 # Instal·lació de Nginx
 echo ""
-echo "${BLUE}Instal·lant Nginx...${NC}"
+echo -e "${BLUE}Instal·lant Nginx...${NC}"
 sudo apt install nginx -y
 
 # Configuració de Nginx
 echo ""
-echo "${BLUE}Configurant Nginx per Odoo...${NC}"
+echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
 sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain"
 <<EOL
 upstream odoo16 {
@@ -419,7 +417,7 @@ EOL
 
 # Activar configuració Nginx
 echo ""
-echo "${BLUE}Activant configuració Nginx...${NC}"
+echo -e "${BLUE}Activant configuració Nginx...${NC}"
 sudo ln -s /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/
 sudo nginx -t
 
@@ -432,12 +430,12 @@ sudo systemctl restart nginx
 # Funció per esborrar fitxers .deb i .sh
 function delete_deb_and_sh_files {
   echo ""
-  echo "${BLUE}Cercant i esborrant fitxers .deb i .sh al directori arrel...${NC}"
+  echo -e "${BLUE}Cercant i esborrant fitxers .deb i .sh al directori arrel...${NC}"
 
   # Busca i elimina fitxers .deb i .sh
   sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) -exec rm -f {} +
 
-  echo "${GREEN}Tots els fitxers .deb i .sh han estat eliminats del directori arrel.${NC}"
+  echo -e "${GREEN}Tots els fitxers .deb i .sh han estat eliminats del directori arrel.${NC}"
 }
 
 # Esborrar fitxers .deb i .sh
