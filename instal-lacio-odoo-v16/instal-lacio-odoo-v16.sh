@@ -50,6 +50,7 @@ function clean_non_system_components {
 
   # Netejar paquets no essencials
   echo -e "${BLUE}Eliminant paquets no essencials...${NC}"
+  sudo apt --fix-broken install -y
   sudo apt autoremove -y
   sudo apt autoclean
 
@@ -65,7 +66,6 @@ function clean_non_system_components {
 clean_non_system_components
 
 # Funció per demanar dades obligatòries amb valor per defecte
-# Funció per demanar dades obligatòries amb un valor per defecte directament editable
 function prompt_required {
   local prompt_text=$1
   local default_value=$2
