@@ -61,26 +61,6 @@ function validate_ip {
   fi
 }
 
-# Configurar SSL amb Let's Encrypt
-function configure_ssl {
-  echo ""
-  echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
-
-  # Instal·lar Certbot
-  sudo apt install certbot python3-certbot-nginx -y
-
-  # Generar certificat SSL per al domini
-  sudo certbot --nginx --non-interactive --agree-tos -m "$admin_email" -d "$custom_domain"
-
-  # Verificar si el certificat s'ha generat correctament
-  if sudo certbot certificates | grep -q "$custom_domain"; then
-    echo -e "${GREEN}SSL configurat correctament per al domini $custom_domain.${NC}"
-  else
-    echo -e "${RED}Hi ha hagut un problema configurant SSL per al domini $custom_domain.${NC}"
-    exit 1
-  fi
-}
-
 # Funció per clonar repositoris amb reintents
 function clone_repository_with_retries {
   local repo_url=$1       # URL del repositori
@@ -251,10 +231,13 @@ sudo apt -y install postgresql-14 postgresql-client-14
 
 # Creació de la base de dades i usuari PostgreSQL per Odoo
 echo ""
-echo -e "${BLUE}Creant base de dades i usuari PostgreSQL per Odoo...${NC}"
+echo -e "${BLUE}Esborrant i creant base de dades i usuari PostgreSQL per Odoo previs, si hi són...${NC}"
+sudo su - postgres -c "psql -c \"DROP DATABASE IF EXISTS $db_name;\""
+sudo su - postgres -c "psql -c \"DROP USER IF EXISTS $db_user;\""
 sudo su - postgres -c "psql -c \"CREATE DATABASE $db_name;\""
-sudo su - postgres -c "createuser -p 5432 -s $db_user"
-sudo su - postgres -c "psql -c \"ALTER USER $db_user WITH PASSWORD '$db_password';\""
+sudo su - postgres -c "psql -c \"CREATE USER $db_user WITH PASSWORD '$db_password';\""
+sudo su - postgres -c "psql -c \"ALTER USER $db_user WITH SUPERUSER;\""
+echo -e "${GREEN}Base de dades $db_name i usuari $db_user creats correctament.${NC}"
 
 # Configurar autenticació PostgreSQL
 echo ""
@@ -270,7 +253,6 @@ sudo adduser --system --group --home=/opt/odoo --shell=/bin/bash odoo
 # Clonar el repositori Odoo 16
 echo ""
 echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
-# Clonar el repositori Odoo 16 en 5 intents
 clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server" "16.0"
 
 # Crear entorn virtual de Python
@@ -342,12 +324,10 @@ sudo systemctl start odoo-server
 sudo systemctl enable odoo-server
 
 # Instal·lar mòduls bàsics
-# Bucle per clonar cada mòdul directament
 for module in "${modules[@]}"; do
   echo -e "${BLUE}Clonant el mòdul: $module${NC}"
   clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server/addons/$module" "16.0"
 done
-
 
 # Instal·lació de Nginx
 echo ""
@@ -389,47 +369,47 @@ echo -e "${BLUE}Activant configuració Nginx...${NC}"
 sudo ln -s /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/
 sudo nginx -t
 
-# Configurar SSL
-configure_ssl
+# Configurar SSL amb Let's Encrypt
+  echo ""
+  echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
+  # Instal·lar Certbot
+  sudo apt install certbot python3-certbot-nginx -y
+  # Generar certificat SSL per al domini
+  sudo certbot --nginx --non-interactive --agree-tos -m "$admin_email" -d "$custom_domain"
+  # Verificar si el certificat s'ha generat correctament
+  if sudo certbot certificates | grep -q "$custom_domain"; then
+    echo -e "${GREEN}SSL configurat correctament per al domini $custom_domain.${NC}"
+  else
+    echo -e "${RED}Hi ha hagut un problema configurant SSL per al domini $custom_domain.${NC}"
+    exit 1
+  fi
 
 # Reiniciar Nginx per aplicar els canvis
 sudo systemctl restart nginx
 
 # Funció per esborrar fitxers .deb i .sh
-function delete_deb_and_sh_files {
-  echo ""
-  echo -e "${BLUE}Cercant i esborrant fitxers .deb i .sh al directori arrel...${NC}"
+echo ""
+echo -e "${BLUE}Cercant i esborrant fitxers .deb i .sh al directori arrel...${NC}"
 
-  # Busca i elimina fitxers .deb i .sh
-  sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) -exec rm -f {} +
-  echo -e "${GREEN}Tots els fitxers .deb i .sh han estat eliminats del directori arrel.${NC}"
-}
-
-# Esborrar fitxers .deb i .sh
-delete_deb_and_sh_files
+# Busca i elimina fitxers .deb i .sh
+sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) -exec rm -f {} +
+echo -e "${GREEN}Tots els fitxers .deb i .sh han estat eliminats del directori arrel.${NC}"
 
 # Test d'accés a Odoo
-function test_odoo_access {
-  echo ""
-  echo -e "${BLUE}Verificant l'accés a Odoo...${NC}"
-
-  # Comprovar accés per IP
-  if curl -s -o /dev/null -w "%{http_code}" "https://$static_ip:8069" | grep -q "200"; then
-    echo -e "${GREEN}Accés correcte mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC}"
-  else
-    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC}"
-  fi
-
-  # Comprovar accés pel domini
-  if curl -s -o /dev/null -w "%{http_code}" "https://$custom_domain" | grep -q "200"; then
-    echo -e "${GREEN}Accés correcte mitjançant el domini: ${YELLOW}https://$custom_domain${NC}"
-  else
-    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant el domini: ${YELLOW}https://$custom_domain${NC}"
-  fi
-}
-
-# Cridar el test d'accés
-test_odoo_access
+echo ""
+echo -e "${BLUE}Verificant l'accés a Odoo...${NC}"
+# Comprovar accés per IP
+if curl -s -o /dev/null -w "%{http_code}" "https://$static_ip:8069" | grep -q "200"; then
+  echo -e "${GREEN}Accés correcte mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC}"
+else
+  echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC}"
+fi
+# Comprovar accés pel domini
+if curl -s -o /dev/null -w "%{http_code}" "https://$custom_domain" | grep -q "200"; then
+  echo -e "${GREEN}Accés correcte mitjançant el domini: ${YELLOW}https://$custom_domain${NC}"
+else
+  echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant el domini: ${YELLOW}https://$custom_domain${NC}"
+fi
 
 # Mostrar les variables i el missatge final
 mostrar_valors
