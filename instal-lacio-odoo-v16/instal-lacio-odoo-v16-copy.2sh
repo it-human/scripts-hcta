@@ -10,84 +10,55 @@ NC='\033[0m' # Reset
 # Funció per revisar i eliminar components que no són del sistema operatiu d'Ubuntu
 function clean_non_system_components {
   echo ""
-  echo -e "${BLUE}Revisant i eliminant components no essencials...${NC}"
+  echo -e "${BLUE}Eliminant tots els components no essencials...${NC}"
 
-  # Revisar i eliminar bases de dades PostgreSQL
-  if sudo -u postgres psql -c "\l" > /dev/null 2>&1; then
-    echo -e "${BLUE}Eliminant bases de dades PostgreSQL...${NC}"
-    sudo -u postgres psql -c "DROP DATABASE IF EXISTS odoo_db;" || true
-    sudo -u postgres psql -c "DROP USER IF EXISTS odoo_user;" || true
-  else
-    echo -e "${GREEN}No s'ha trobat cap instància de PostgreSQL.${NC}"
-  fi
+  echo -e "${BLUE}Eliminant bases de dades PostgreSQL i usuaris associats...${NC}"
+  sudo -u postgres psql -c "DROP DATABASE IF EXISTS odoo_db;" || true
+  sudo -u postgres psql -c "DROP USER IF EXISTS odoo_user;" || true
 
-  # Revisar i eliminar PostgreSQL completament
-  if dpkg -l | grep -q postgresql; then
-    echo -e "${BLUE}Eliminant PostgreSQL...${NC}"
-    sudo systemctl stop postgresql
-    sudo apt purge postgresql* -y
-    sudo rm -rf /etc/postgresql /var/lib/postgresql /var/log/postgresql
-  else
-    echo -e "${GREEN}PostgreSQL no està instal·lat.${NC}"
-  fi
+  echo -e "${BLUE}Eliminant PostgreSQL i totes les dependències...${NC}"
+  sudo systemctl stop postgresql
+  sudo apt purge postgresql* -y
+  sudo rm -rf /etc/postgresql /var/lib/postgresql /var/log/postgresql
 
-  # Revisar i eliminar usuaris i grups d'Odoo
-  if id "odoo" &>/dev/null; then
-    echo -e "${BLUE}Eliminant usuaris i grups d'Odoo...${NC}"
-    sudo deluser --remove-home odoo || true
-    sudo delgroup odoo || true
-  else
-    echo -e "${GREEN}No s'ha trobat l'usuari o grup d'Odoo.${NC}"
-  fi
+  echo -e "${BLUE}Eliminant usuaris i grups d'Odoo...${NC}"
+  sudo deluser --remove-home odoo || true
+  sudo delgroup odoo || true
 
-  # Revisar i eliminar directoris relacionats amb Odoo
-  if [ -d "/opt/odoo" ] || [ -f "/etc/odoo.conf" ]; then
-    echo -e "${BLUE}Eliminant directoris d'Odoo...${NC}"
-    sudo rm -rf /opt/odoo /var/log/odoo /etc/odoo.conf
-  else
-    echo -e "${GREEN}No s'han trobat directoris o fitxers d'Odoo.${NC}"
-  fi
+  echo -e "${BLUE}Eliminant tots els directoris i fitxers d'Odoo...${NC}"
+  sudo rm -rf /opt/odoo /var/log/odoo /etc/odoo.conf
 
-  # Netejar paquets no essencials
-  echo -e "${BLUE}Eliminant paquets no essencials...${NC}"
+  echo -e "${BLUE}Eliminant dependències de Python relacionades...${NC}"
+  sudo apt purge python3-venv python3-pip python3-dev python3-wheel -y
+  sudo rm -rf /usr/local/lib/python*/dist-packages /usr/lib/python*/dist-packages
 
-  # 1. Reparar dependències trencades
+  echo -e "${BLUE}Reparant dependències trencades i eliminant paquets problemàtics...${NC}"
   sudo apt --fix-broken install -y
-
-  # 2. Forçar la desinstal·lació de paquets problemàtics (com wkhtmltox)
-  echo -e "${BLUE}Eliminant paquets problemàtics...${NC}"
   sudo dpkg --purge wkhtmltox || true
-
-  # 3. Tornar a instal·lar paquets necessaris per assegurar que estiguin en bon estat
-  echo -e "${BLUE}Reinstal·lant wkhtmltox si és necessari...${NC}"
   sudo apt install -f wkhtmltox -y || true
 
-  # 4. Eliminar fitxers de bloqueig per si hi ha processos bloquejats
   echo -e "${BLUE}Eliminant fitxers de bloqueig...${NC}"
   sudo rm -rf /var/lib/dpkg/lock
   sudo rm -rf /var/lib/dpkg/lock-frontend
   sudo rm -rf /var/cache/apt/archives/lock
 
-  # 5. Reparar configuracions de dpkg
-  echo -e "${BLUE}Reconfigurant paquets amb dpkg...${NC}"
+  echo -e "${BLUE}Reconfigurant paquets i el sistema dpkg...${NC}"
   sudo dpkg --configure -a
 
-  # 6. Netejar paquets no essencials
-  echo -e "${BLUE}Eliminant paquets no essencials...${NC}"
+  echo -e "${BLUE}Eliminant paquets no essencials i netejant el sistema...${NC}"
   sudo apt autoremove -y
   sudo apt autoclean
 
-  # 7. Actualitzar l'estat del sistema
-  echo -e "${BLUE}Actualitzant el sistema...${NC}"
+  echo -e "${BLUE}Actualitzant el sistema a l'estat més recent...${NC}"
   sudo apt update -y
   sudo apt upgrade -y
 
-  # Eliminar fitxers sobrants
-  echo -e "${BLUE}Eliminant fitxers sobrants...${NC}"
+  echo -e "${BLUE}Esborrant fitxers sobrants d'instal·lació (.deb, .sh)...${NC}"
   sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
-  -not -path "/snap/*" -not -path "/proc/*" -not -path "/sys/*" -not -path "/dev/*" \
-  -exec rm -f {} + 2>/dev/null || true
-  echo -e "${GREEN}Components no essencials eliminats.${NC}"
+    -not -path "/snap/*" -not -path "/proc/*" -not -path "/sys/*" -not -path "/dev/*" \
+    -exec rm -f {} + 2>/dev/null || true
+
+  echo -e "${GREEN}Tots els components no essencials han estat eliminats amb èxit.${NC}"
 }
 
 # Cridar la funció de neteja
