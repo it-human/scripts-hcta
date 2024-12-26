@@ -263,6 +263,16 @@ echo ""
 echo -e "${BLUE}Instal·lant seguretat SSH i Fail2ban...${NC}"
 sudo apt-get install openssh-server fail2ban -y
 
+# Instal·lació de Wkhtmltopdf
+echo ""
+echo -e "${BLUE}Instal·lant dependències per Wkhtmltopdf...${NC}"
+sudo apt-get install -y fontconfig libjpeg-turbo8 libxrender1 xfonts-75dpi xfonts-base
+echo -e "${BLUE}Instal·lant Wkhtmltopdf...${NC}"
+wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || true
+sudo apt-get install -f -y
+sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || true
+
 # Instal·lació de llibreries necessàries
 echo ""
 echo -e "${BLUE}Instal·lant llibreries necessàries...${NC}"
@@ -275,16 +285,6 @@ echo ""
 echo -e "${BLUE}Instal·lant Node.js i NPM...${NC}"
 sudo apt install nodejs npm node-less xfonts-75dpi xfonts-base fontconfig -y
 sudo npm install -g rtlcss
-
-# Instal·lació de Wkhtmltopdf
-echo ""
-echo -e "${BLUE}Instal·lant dependències per Wkhtmltopdf...${NC}"
-sudo apt-get install -y fontconfig libjpeg-turbo8 libxrender1 xfonts-75dpi xfonts-base
-echo -e "${BLUE}Instal·lant Wkhtmltopdf...${NC}"
-wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || true
-sudo apt-get install -f -y
-sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || true
 
 # Instal·lació de PostgreSQL 14
 echo ""
