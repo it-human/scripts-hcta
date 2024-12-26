@@ -254,6 +254,7 @@ fi
 # Actualitzar el servidor
 echo ""
 echo -e "${BLUE}Actualitzant el servidor...${NC}"
+sudo apt-get -f install
 sudo apt --fix-broken install -y
 sudo apt update -y && sudo apt upgrade -y
 
@@ -290,7 +291,6 @@ echo ""
 echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
 curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /usr/share/keyrings/postgresql-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/postgresql-keyring.gpg] http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-sudo apt --fix-broken install -y
 sudo apt update
 sudo apt -y install postgresql-14 postgresql-client-14
 
