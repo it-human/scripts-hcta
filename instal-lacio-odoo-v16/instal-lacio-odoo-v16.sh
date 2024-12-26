@@ -68,7 +68,7 @@ function clone_repository_with_retries {
   local branch_name=$3    # Nom de la branca a clonar
   local retry_limit=5     # Nombre màxim de reintents
 
-  echo -e "${BLUE}Clonant el repositori: $repo_url a $target_dir...${NC}"
+  echo -e "${BLUE}Clonant el repositori: ${YELLOW}$repo_url${NC} a ${YELLOW}$target_dir${NC}..."
 
   local retry_count=0
   sudo rm -rf "$target_dir"  # Eliminar el directori existent si cal
@@ -78,7 +78,7 @@ function clone_repository_with_retries {
     sudo su - odoo -c "git clone $repo_url --depth 1 --branch $branch_name --single-branch $target_dir"
 
     if [ $? -eq 0 ]; then
-      echo -e "${GREEN}Repositori clonado correctament: $repo_url.${NC}"
+      echo -e "${GREEN}Repositori clonat correctament: ${YELLOW}$repo_url${NC}."
       return 0
     else
       echo -e "${YELLOW}Error al clonar el repositori. Reintentant en 5 segons...${NC}"
