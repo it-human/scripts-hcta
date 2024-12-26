@@ -282,8 +282,6 @@ fi
 # Actualitzar el servidor
 echo ""
 echo -e "${BLUE}Actualitzant el servidor...${NC}"
-sudo apt-get -f install
-sudo apt --fix-broken install -y
 sudo apt update -y && sudo apt upgrade -y
 
 # Instal·lació de seguretat SSH i Fail2ban
