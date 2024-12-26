@@ -55,7 +55,7 @@ function clean_non_system_components {
 
   # Eliminar fitxers sobrants
   echo -e "${BLUE}Eliminant fitxers sobrants...${NC}"
-sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
+  sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
   -not -path "/snap/*" -not -path "/proc/*" -not -path "/sys/*" -not -path "/dev/*" \
   -exec rm -f {} + 2>/dev/null || true
   echo -e "${GREEN}Components no essencials eliminats.${NC}"
@@ -284,7 +284,7 @@ sudo apt-get install -f -y
 echo ""
 echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
 curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
-echo "deb http://apt.postgresql.org/pub/repos/apt/ lsb_release -cs-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
 sudo apt update
 sudo apt -y install postgresql-14 postgresql-client-14
 
