@@ -262,8 +262,28 @@ sudo adduser --system --group --home=/opt/odoo --shell=/bin/bash odoo
 # Clonar el repositori Odoo 16
 echo ""
 echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
+RETRY_LIMIT=5  # Nombre màxim de reintents
+RETRY_COUNT=0
 sudo rm -rf /opt/odoo/odoo-server
-sudo su - odoo -c "git clone https://github.com/odoo/odoo.git --depth 1 --branch 16.0 --single-branch /opt/odoo/odoo-server"
+# Bucle per intentar clonar
+while [ $RETRY_COUNT -lt $RETRY_LIMIT ]; do
+  echo -e "${BLUE}Intentant clonar el repositori (Intent $((RETRY_COUNT + 1))/$RETRY_LIMIT)...${NC}"
+  sudo su - odoo -c "git clone https://github.com/odoo/odoo.git --depth 1 --branch 16.0 --single-branch /opt/odoo/odoo-server"
+
+  if [ $? -eq 0 ]; then
+    echo -e "${GREEN}Repositori clonado correctament.${NC}"
+    break
+  else
+    echo -e "${YELLOW}Error al clonar el repositori. Reintentant en 5 segons...${NC}"
+    sleep 5
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+  fi
+done
+# Si arriba al límit de reintents, mostrar error
+if [ $RETRY_COUNT -eq $RETRY_LIMIT ]; then
+  echo -e "${RED}No s'ha pogut clonar el repositori després de $RETRY_LIMIT intents.${NC}"
+  exit 1
+fi
 
 # Crear entorn virtual de Python
 echo ""
