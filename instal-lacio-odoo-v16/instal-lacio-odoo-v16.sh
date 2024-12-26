@@ -10,13 +10,13 @@ NC='\033[0m' # Reset
 # Funció per revisar i eliminar components que no són del sistema operatiu d'Ubuntu
 function clean_non_system_components {
   echo ""
-  echo -e "${BLUE}Revisant i eliminant components no essencials...${NC}"
+  echo -e "${BLUE}Eliminant tots els components no essencials...${NC}"
 
-  echo -e "${BLUE}Eliminant bases de dades PostgreSQL...${NC}"
+  echo -e "${BLUE}Eliminant bases de dades PostgreSQL i usuaris associats...${NC}"
   sudo -u postgres psql -c "DROP DATABASE IF EXISTS odoo_db;" || true
   sudo -u postgres psql -c "DROP USER IF EXISTS odoo_user;" || true
 
-  echo -e "${BLUE}Eliminant PostgreSQL...${NC}"
+  echo -e "${BLUE}Eliminant PostgreSQL i totes les dependències...${NC}"
   sudo systemctl stop postgresql
   sudo apt purge postgresql* -y
   sudo rm -rf /etc/postgresql /var/lib/postgresql /var/log/postgresql
@@ -25,10 +25,14 @@ function clean_non_system_components {
   sudo deluser --remove-home odoo || true
   sudo delgroup odoo || true
 
-  echo -e "${BLUE}Eliminant directoris d'Odoo...${NC}"
+  echo -e "${BLUE}Eliminant tots els directoris i fitxers d'Odoo...${NC}"
   sudo rm -rf /opt/odoo /var/log/odoo /etc/odoo.conf
 
-  echo -e "${BLUE}Eliminant paquets no essencials...${NC}"
+  echo -e "${BLUE}Eliminant dependències de Python relacionades...${NC}"
+  sudo apt purge python3-venv python3-pip python3-dev python3-wheel -y
+  sudo rm -rf /usr/local/lib/python*/dist-packages /usr/lib/python*/dist-packages
+
+  echo -e "${BLUE}Reparant dependències trencades i eliminant paquets problemàtics...${NC}"
   sudo apt --fix-broken install -y
   sudo dpkg --purge wkhtmltox || true
   sudo apt install -f wkhtmltox -y || true
@@ -38,25 +42,24 @@ function clean_non_system_components {
   sudo rm -rf /var/lib/dpkg/lock-frontend
   sudo rm -rf /var/cache/apt/archives/lock
 
-  echo -e "${BLUE}Reconfigurant paquets amb dpkg...${NC}"
+  echo -e "${BLUE}Reconfigurant paquets i el sistema dpkg...${NC}"
   sudo dpkg --configure -a
 
-  echo -e "${BLUE}Eliminant paquets no essencials...${NC}"
+  echo -e "${BLUE}Eliminant paquets no essencials i netejant el sistema...${NC}"
   sudo apt autoremove -y
   sudo apt autoclean
 
-  echo -e "${BLUE}Actualitzant el sistema...${NC}"
+  echo -e "${BLUE}Actualitzant el sistema a l'estat més recent...${NC}"
   sudo apt update -y
   sudo apt upgrade -y
 
-  echo -e "${BLUE}Eliminant fitxers sobrants...${NC}"
+  echo -e "${BLUE}Esborrant fitxers sobrants d'instal·lació (.deb, .sh)...${NC}"
   sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
     -not -path "/snap/*" -not -path "/proc/*" -not -path "/sys/*" -not -path "/dev/*" \
     -exec rm -f {} + 2>/dev/null || true
 
-  echo -e "${GREEN}Components no essencials eliminats.${NC}"
+  echo -e "${GREEN}Tots els components no essencials han estat eliminats amb èxit.${NC}"
 }
-
 
 # Cridar la funció de neteja
 clean_non_system_components
