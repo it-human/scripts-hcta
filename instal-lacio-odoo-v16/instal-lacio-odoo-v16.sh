@@ -222,13 +222,12 @@ sudo apt install -y vim curl wget gpg git gnupg2 software-properties-common apt-
 # Instal·lació de Node.js i NPM amb les últimes versions
 echo ""
 echo -e "${BLUE}Instal·lant Node.js i NPM amb les últimes versions...${NC}"
-latest_node_version=$(curl -sL https://nodejs.org/dist/latest/ | grep -o 'v[0-9.]*' | head -n1)
-latest_npm_version=$(npm view npm version)
-echo "Última versió de Node.js: $latest_node_version"
-echo "Última versió de NPM: $latest_npm_version"
-sudo apt install nodejs npm -y
+curl -fsSL https://deb.nodesource.com/setup_$(curl -sL https://nodejs.org/dist/latest/ | sed -n 's/.*node-\(.*\)\.tar\.xz.*/\1/p') | sudo -E bash -
+sudo apt-get install -y nodejs
+sudo npm install -g npm@latest
 sudo apt install xfonts-75dpi xfonts-base fontconfig -y
-sudo npm install -g rtlcss node-less@$latest_node_version
+sudo npm install -g rtlcss node-less@
+sudo apt autoremove
 
 # Instal·lació de PostgreSQL 14
 echo ""
