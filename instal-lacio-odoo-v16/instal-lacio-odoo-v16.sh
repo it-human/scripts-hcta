@@ -820,7 +820,7 @@ echo -e "${BLUE}Activant configuració Nginx per a $custom_domain...${NC}"
   # Comprovar si l'enllaç simbòlic existeix
   if [ -L "/etc/nginx/sites-enabled/$custom_domain" ]; then
     echo -e "${YELLOW}L'enllaç simbòlic per a $custom_domain ja existeix. Eliminant-lo...${NC}"
-    sudo rm -f "/etc/nginx/sites-enabled/$custom_domain"
+    sudo rm -rf "/etc/nginx/sites-enabled/$custom_domain"
   fi
 
   # Crear un nou enllaç simbòlic
