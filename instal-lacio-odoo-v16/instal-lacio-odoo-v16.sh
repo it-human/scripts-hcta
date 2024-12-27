@@ -617,7 +617,8 @@ echo -e "${BLUE}Creant fitxer de configuració d'Odoo...${NC}"
   instance_name = $instance_name
   static_ip = $static_ip
   port = 8069
-  EOL"; then
+EOL";
+  then
     echo -e "${GREEN}Fitxer de configuració creat correctament.${NC}"
   else
     echo -e "${RED}Error en crear el fitxer de configuració.${NC}"
@@ -655,7 +656,8 @@ echo -e "${BLUE}Creant servei d'Odoo...${NC}"
 
   [Install]
   WantedBy=multi-user.target
-  EOL"; then
+EOL";
+  then
     echo -e "${GREEN}Fitxer de servei creat correctament.${NC}"
   else
     echo -e "${RED}Error en crear el fitxer de servei.${NC}"
@@ -775,7 +777,8 @@ echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
           proxy_set_header X-Forwarded-Proto \$scheme;
       }
   }
-  EOL"; then
+EOL";
+  then
     echo -e "${GREEN}Fitxer de configuració creat correctament.${NC}"
   else
     echo -e "${RED}Error en crear el fitxer de configuració per a $custom_domain.${NC}"
@@ -812,8 +815,16 @@ echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
 
 # Activar configuració Nginx
 echo ""
-echo -e "${BLUE}Activant configuració Nginx...${NC}"
-  if sudo ln -sf /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/; then
+echo -e "${BLUE}Activant configuració Nginx per a $custom_domain...${NC}"
+
+  # Comprovar si l'enllaç simbòlic existeix
+  if [ -L "/etc/nginx/sites-enabled/$custom_domain" ]; then
+    echo -e "${YELLOW}L'enllaç simbòlic per a $custom_domain ja existeix. Eliminant-lo...${NC}"
+    sudo rm -f "/etc/nginx/sites-enabled/$custom_domain"
+  fi
+
+  # Crear un nou enllaç simbòlic
+  if sudo ln -s /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/; then
     echo -e "${GREEN}Configuració Nginx activada correctament per al domini $custom_domain.${NC}"
   else
     echo -e "${RED}Error activant la configuració Nginx per al domini $custom_domain.${NC}"
