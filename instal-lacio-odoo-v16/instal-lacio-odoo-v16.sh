@@ -151,7 +151,7 @@ instance_name=$(prompt_required_no_default "Introdueix el nom de la instància d
 # Generar valors per defecte per la base de dades i l'usuari basat en el nom de la instància
 # Assignar valors per defecte i convertir a minúscules
 db_name_default=$(echo "${instance_name//[-]/_}_db" | tr '[:upper:]' '[:lower:]')
-db_user_default=$(echo "${instance_name//[-]/_}_user" | tr '[:upper:]' '[:lower:]')y
+db_user_default=$(echo "${instance_name//[-]/_}_user" | tr '[:upper:]' '[:lower:]')
 
 
 # Generar contrasenyes aleatòries per defecte
