@@ -361,6 +361,8 @@ echo -e "${BLUE}Instal·lant Node.js i NPM (versió 18.x)...${NC}"
     # Executar l'script de configuració si la descàrrega és correcta
     sudo -E bash /tmp/setup_18.x
     echo -e "${GREEN}Configuració de Node.js completada.${NC}"
+    # Esborrar el fitxer temporal
+    rm -f /tmp/setup_18.x
   else
     echo -e "${RED}Error: No s'ha pogut descarregar l'script de configuració de Node.js.${NC}"
     exit 1
@@ -414,12 +416,25 @@ echo ""
 echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
 
   # Afegir la clau GPG per al repositori
-  # Descarregar la clau de PostgreSQL amb reintents
-  curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/usr/share/keyrings/postgresql-keyring.gpg"
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Error al descarregar la clau de PostgreSQL. Abortant.${NC}"
-    exit 1
+  # Camí de destinació
+  output_file="/usr/share/keyrings/postgresql-keyring.gpg"
+
+  # Verifica si el directori existeix
+  if [ ! -d "$(dirname "$output_file")" ]; then
+    echo -e "${YELLOW}Creant directori per al fitxer de claus: $(dirname "$output_file")${NC}"
+    sudo mkdir -p "$(dirname "$output_file")"
   fi
+
+  # Descarregar amb reintents
+  curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/tmp/postgresql-keyring.gpg"
+
+  # Copiar al directori de destinació amb permisos de superusuari
+  if sudo mv /tmp/postgresql-keyring.gpg "$output_file"; then
+    echo -e "${GREEN}Clau GPG descarregada i desada a $output_file.${NC}"
+  else
+    echo -e "${RED}Error desant la clau GPG a $output_file. Comprova els permisos.${NC}"
+    exit 1
+fi
 
   # Afegir el repositori de PostgreSQL
   if echo "deb [signed-by=/usr/share/keyrings/postgresql-keyring.gpg] http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list; then
