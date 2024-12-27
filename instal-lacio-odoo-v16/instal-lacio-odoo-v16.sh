@@ -127,7 +127,7 @@ function curl_with_retries {
 
   while [ $retry_count -lt $retry_limit ]; do
     echo -e "${BLUE}Intentant descarregar $url (Intent $((retry_count + 1))/$retry_limit)...${NC}"
-    curl -fsSL "$url" -o "$output"
+    curl -fsSL "$url" | sudo gpg --dearmor -o "$output"
 
     if [ $? -eq 0 ]; then
       echo -e "${GREEN}Descarregat correctament: $url.${NC}"
@@ -414,7 +414,7 @@ echo ""
 echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
 
   # Afegir la clau GPG per al repositori
-  if curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor" "/usr/share/keyrings/postgresql-keyring.gpg"; then
+  if curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/usr/share/keyrings/postgresql-keyring.gpg"; then
     sudo gpg --dearmor -o /usr/share/keyrings/postgresql-keyring.gpg < /usr/share/keyrings/postgresql-keyring.gpg
     echo -e "${GREEN}Clau GPG afegida correctament.${NC}"
   else
