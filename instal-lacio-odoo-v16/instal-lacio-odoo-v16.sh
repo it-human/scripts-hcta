@@ -118,8 +118,6 @@ function clone_repository_with_retries {
 }
 
 
-
-
 # Funció per executar curl amb reintents
 function curl_with_retries {
   local url=$1         # URL a descarregar
@@ -129,7 +127,7 @@ function curl_with_retries {
 
   while [ $retry_count -lt $retry_limit ]; do
     echo -e "${BLUE}Intentant descarregar $url (Intent $((retry_count + 1))/$retry_limit)...${NC}"
-    curl -fsSL "$url" | sudo gpg --dearmor -o "$output"
+    curl -fsSL "$url" -o "$output"
 
     if [ $? -eq 0 ]; then
       echo -e "${GREEN}Descarregat correctament: $url.${NC}"
