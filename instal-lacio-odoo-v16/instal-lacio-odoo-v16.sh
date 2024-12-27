@@ -213,7 +213,10 @@ fi
   echo -e "  Usuari de la base de dades: ${YELLOW}$db_user${NC}"
   echo -e "  Contrasenya de la base de dades: ${YELLOW}$db_password${NC}"
   echo -e "  Correu electrònic de l'administrador: ${YELLOW}$admin_email${NC}"
-  echo -e "  Contrasenya de l'administrador: ${YELLOW}$admin_password${NC}"# Funció per descarregar fitxers amb reintents
+  echo -e "  Contrasenya de l'administrador: ${YELLOW}$admin_password${NC}"
+  
+  
+  # Funció per descarregar fitxers amb reintents
 function wget_with_retries {
   local url=$1         # URL del fitxer a descarregar
   local output=$2      # Nom del fitxer de sortida
@@ -411,7 +414,7 @@ echo ""
 echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
 
   # Afegir la clau GPG per al repositori
-  if curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/usr/share/keyrings/postgresql-keyring.gpg"; then
+  if curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor" "/usr/share/keyrings/postgresql-keyring.gpg"; then
     sudo gpg --dearmor -o /usr/share/keyrings/postgresql-keyring.gpg < /usr/share/keyrings/postgresql-keyring.gpg
     echo -e "${GREEN}Clau GPG afegida correctament.${NC}"
   else
