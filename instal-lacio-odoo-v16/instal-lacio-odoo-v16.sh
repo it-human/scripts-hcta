@@ -118,6 +118,8 @@ function clone_repository_with_retries {
 }
 
 
+
+
 # Funció per executar curl amb reintents
 function curl_with_retries {
   local url=$1         # URL a descarregar
@@ -414,11 +416,10 @@ echo ""
 echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
 
   # Afegir la clau GPG per al repositori
-  if curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/usr/share/keyrings/postgresql-keyring.gpg"; then
-    sudo gpg --dearmor -o /usr/share/keyrings/postgresql-keyring.gpg < /usr/share/keyrings/postgresql-keyring.gpg
-    echo -e "${GREEN}Clau GPG afegida correctament.${NC}"
-  else
-    echo -e "${RED}Error afegint la clau GPG després de múltiples intents.${NC}"
+  # Descarregar la clau de PostgreSQL amb reintents
+  curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/usr/share/keyrings/postgresql-keyring.gpg"
+  if [ $? -ne 0 ]; then
+    echo -e "${RED}Error al descarregar la clau de PostgreSQL. Abortant.${NC}"
     exit 1
   fi
 
