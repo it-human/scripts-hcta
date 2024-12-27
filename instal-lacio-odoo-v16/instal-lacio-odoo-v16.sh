@@ -817,19 +817,19 @@ EOL";
 echo ""
 echo -e "${BLUE}Activant configuració Nginx per a $custom_domain...${NC}"
 
-  # Comprovar si l'enllaç simbòlic existeix
+  # Verificar si l'enllaç simbòlic ja existeix
   if [ -L "/etc/nginx/sites-enabled/$custom_domain" ]; then
-    echo -e "${YELLOW}L'enllaç simbòlic per a $custom_domain ja existeix. Eliminant-lo...${NC}"
-    sudo rm -rf "/etc/nginx/sites-enabled/$custom_domain"
+    echo -e "${YELLOW}L'enllaç simbòlic ja existeix per a $custom_domain. No cal crear-lo.${NC}"
+  else
+    # Crear un nou enllaç simbòlic
+    if sudo ln -s "/etc/nginx/sites-available/$custom_domain" "/etc/nginx/sites-enabled/"; then
+      echo -e "${GREEN}Configuració Nginx activada correctament per al domini $custom_domain.${NC}"
+    else
+      echo -e "${RED}Error activant la configuració Nginx per al domini $custom_domain.${NC}"
+      exit 1
+    fi
   fi
 
-  # Crear un nou enllaç simbòlic
-  if sudo ln -s /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/; then
-    echo -e "${GREEN}Configuració Nginx activada correctament per al domini $custom_domain.${NC}"
-  else
-    echo -e "${RED}Error activant la configuració Nginx per al domini $custom_domain.${NC}"
-    exit 1
-  fi
 
 
 # Verificar configuració de Nginx
