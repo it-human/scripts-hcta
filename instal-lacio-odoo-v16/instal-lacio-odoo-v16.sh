@@ -758,13 +758,13 @@ echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
   if [ -f /etc/nginx/sites-available/$custom_domain ]; then
     echo -e "${YELLOW}El fitxer /etc/nginx/sites-available/$custom_domain ja existeix. Eliminant-lo...${NC}"
     sudo rm -f /etc/nginx/sites-available/$custom_domain
-    echo -e "${GREEN}Fitxer eliminat correctament.${NC}"
+    echo -e "${GREEN}Fitxer /etc/nginx/sites-available/$custom_domain eliminat correctament.${NC}"
   fi
 
   if [ -f /etc/nginx/sites-enabled/$custom_domain ]; then
     echo -e "${YELLOW}El fitxer /etc/nginx/sites-enabled/$custom_domain ja existeix. Eliminant-lo...${NC}"
     sudo rm -f /etc/nginx/sites-enabled/$custom_domain
-    echo -e "${GREEN}Fitxer eliminat correctament.${NC}"
+    echo -e "${GREEN}Fitxer /etc/nginx/sites-enabled/$custom_domain eliminat correctament.${NC}"
   fi
 
 
