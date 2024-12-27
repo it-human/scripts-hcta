@@ -812,7 +812,6 @@ echo -e "${BLUE}Activant configuració Nginx per a $custom_domain...${NC}"
   fi
 
 
-
 # Verificar configuració de Nginx
 echo ""
 echo -e "${BLUE}Verificant configuració de Nginx...${NC}"
@@ -849,13 +848,21 @@ echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
 
 # Reiniciar Nginx per aplicar els canvis
 echo ""
-echo -e "${BLUE}Reiniciant Nginx per aplicar els canvis...${NC}"
+echo -e "${BLUE}Verificant la configuració de Nginx abans de reiniciar...${NC}"
+
+if sudo nginx -t; then
+  echo -e "${GREEN}La configuració de Nginx és vàlida. Reiniciant Nginx...${NC}"
   if sudo systemctl restart nginx; then
     echo -e "${GREEN}Nginx reiniciat correctament.${NC}"
   else
     echo -e "${RED}Error en reiniciar Nginx. Comprova els logs del sistema per més informació.${NC}"
     exit 1
   fi
+else
+  echo -e "${RED}Error en la configuració de Nginx. No es pot reiniciar.${NC}"
+  sudo nginx -t # Mostra els errors de configuració
+  exit 1
+fi
 
 
 # Funció per esborrar fitxers .deb i .sh
