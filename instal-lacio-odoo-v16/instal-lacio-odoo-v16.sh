@@ -262,7 +262,14 @@ fi
 # Actualitzar el servidor
 echo ""
 echo -e "${BLUE}Actualitzant el servidor...${NC}"
-sudo apt update -y && sudo apt upgrade -y
+
+  if sudo apt update -y && sudo apt upgrade -y; then
+    echo -e "${GREEN}El servidor s'ha actualitzat correctament.${NC}"
+  else
+    echo -e "${RED}Error durant l'actualització del servidor.${NC}"
+    exit 1
+  fi
+
 
 # Instal·lació de seguretat SSH i Fail2ban
 echo ""
