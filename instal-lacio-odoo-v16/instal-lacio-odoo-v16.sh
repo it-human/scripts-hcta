@@ -756,16 +756,21 @@ echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
 
   # Comprovar i eliminar configuracions anteriors si existeixen
   if [ -f /etc/nginx/sites-available/$custom_domain ]; then
-  echo -e "${YELLOW}El fitxer /etc/nginx/sites-available/$custom_domain ja existeix. Eliminant-lo...${NC}"
-  sudo rm -f /etc/nginx/sites-available/$custom_domain
-  echo -e "${GREEN}Fitxer /etc/nginx/sites-available/$custom_domain eliminat correctament.${NC}"
-fi
+    echo -e "${YELLOW}El fitxer /etc/nginx/sites-available/$custom_domain ja existeix. Eliminant-lo...${NC}"
+    sudo rm -f /etc/nginx/sites-available/$custom_domain
+    echo -e "${GREEN}Fitxer /etc/nginx/sites-available/$custom_domain eliminat correctament.${NC}"
+  else
+    echo -e "${BLUE}El fitxer /etc/nginx/sites-available/$custom_domain no existeix.${NC}"
+  fi
 
-if [ -L /etc/nginx/sites-enabled/$custom_domain ]; then
-  echo -e "${YELLOW}L'enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain ja existeix. Eliminant-lo...${NC}"
-  sudo rm -f /etc/nginx/sites-enabled/$custom_domain
-  echo -e "${GREEN}Enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain eliminat correctament.${NC}"
-fi
+  if [ -L /etc/nginx/sites-enabled/$custom_domain ]; then
+    echo -e "${YELLOW}L'enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain ja existeix. Eliminant-lo...${NC}"
+    sudo rm -f /etc/nginx/sites-enabled/$custom_domain
+    echo -e "${GREEN}Enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain eliminat correctament.${NC}"
+  else
+    echo -e "${BLUE}L'enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain no existeix.${NC}"
+  fi
+
 
 # Crear el nou fitxer de configuració
 echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
