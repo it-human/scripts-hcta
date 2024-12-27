@@ -425,16 +425,14 @@ echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
     sudo mkdir -p "$(dirname "$output_file")"
   fi
 
-  # Descarregar amb reintents
-  curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/tmp/postgresql-keyring.gpg"
-
-  # Copiar al directori de destinació amb permisos de superusuari
-  if sudo mv /tmp/postgresql-keyring.gpg "$output_file"; then
-    echo -e "${GREEN}Clau GPG descarregada i desada a $output_file.${NC}"
+  # Descarregar clau GPG amb reintents i moure a la ubicació correcta
+  if curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/tmp/postgresql-keyring.gpg"; then
+      sudo mv /tmp/postgresql-keyring.gpg /usr/share/keyrings/postgresql-keyring.gpg
+      echo -e "${GREEN}Clau GPG de PostgreSQL descarregada i instal·lada correctament.${NC}"
   else
-    echo -e "${RED}Error desant la clau GPG a $output_file. Comprova els permisos.${NC}"
-    exit 1
-fi
+      echo -e "${RED}Error: No s'ha pogut descarregar la clau GPG de PostgreSQL.${NC}"
+      exit 1
+  fi
 
   # Afegir el repositori de PostgreSQL
   if echo "deb [signed-by=/usr/share/keyrings/postgresql-keyring.gpg] http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list; then
