@@ -715,6 +715,19 @@ echo -e "${BLUE}Iniciant i habilitant el servei d'Odoo...${NC}"
 echo ""
 echo -e "${BLUE}Instal·lant Nginx...${NC}"
 
+  # Eliminar instal·lació prèvia de Nginx
+  echo ""
+  echo -e "${BLUE}Comprovant si hi ha una instal·lació prèvia de Nginx...${NC}"
+  if dpkg -l | grep -q nginx; then
+    echo -e "${YELLOW}S'ha detectat una instal·lació prèvia de Nginx. Eliminant-la...${NC}"
+    sudo systemctl stop nginx || true
+    sudo apt purge -y nginx* || true
+    sudo rm -rf /etc/nginx /var/log/nginx /var/lib/nginx
+    echo -e "${GREEN}Instal·lació prèvia de Nginx eliminada correctament.${NC}"
+  else
+    echo -e "${GREEN}No s'ha detectat cap instal·lació prèvia de Nginx.${NC}"
+  fi
+
   # Instal·lar Nginx
   if sudo apt install -y nginx; then
     echo -e "${GREEN}Nginx instal·lat correctament.${NC}"
