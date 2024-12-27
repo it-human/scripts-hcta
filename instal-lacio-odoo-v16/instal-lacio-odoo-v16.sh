@@ -424,6 +424,8 @@ echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
     echo -e "${YELLOW}Creant directori per al fitxer de claus: $(dirname "$output_file")${NC}"
     sudo mkdir -p "$(dirname "$output_file")"
   fi
+  # Assegura els permisos del directori
+  sudo chmod 755 "$(dirname "$output_file")"
 
   # Descarregar clau GPG amb reintents i moure a la ubicació correcta
   if curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/tmp/postgresql-keyring.gpg"; then
