@@ -531,9 +531,9 @@ echo -e "${BLUE}Creant usuari Odoo al sistema...${NC}"
 
 
 # Clonar el repositori Odoo 16
-  echo ""
-  echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
-  clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server" "16.0"
+#  echo ""
+#  echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
+#  clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server" "16.0"
 
 
 # Crear entorn virtual de Python
@@ -785,24 +785,6 @@ EOL";
     exit 1
   fi
 
-  # Activar la configuració de Nginx
-  echo -e "${BLUE}Activant configuració Nginx per a $custom_domain...${NC}"
-  if sudo ln -s /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/; then
-    echo -e "${GREEN}Configuració activada correctament.${NC}"
-  else
-    echo -e "${RED}Error en activar la configuració per a $custom_domain.${NC}"
-    exit 1
-  fi
-
-  # Comprovar la configuració de Nginx
-  echo -e "${BLUE}Verificant la configuració de Nginx...${NC}"
-  if sudo nginx -t; then
-    echo -e "${GREEN}La configuració de Nginx és vàlida.${NC}"
-  else
-    echo -e "${RED}Error en la configuració de Nginx. Revisa els errors i torna-ho a provar.${NC}"
-    exit 1
-  fi
-
   # Reiniciar Nginx per aplicar els canvis
   echo -e "${BLUE}Reiniciant Nginx per aplicar els canvis...${NC}"
   if sudo systemctl restart nginx; then
@@ -811,7 +793,6 @@ EOL";
     echo -e "${RED}Error en reiniciar Nginx. Revisa els registres per trobar més informació.${NC}"
     exit 1
   fi
-
 
 # Activar configuració Nginx
 echo ""
