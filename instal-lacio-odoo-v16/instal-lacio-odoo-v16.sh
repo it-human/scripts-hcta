@@ -61,6 +61,32 @@ function validate_ip {
   fi
 }
 
+# Funció per descarregar fitxers amb reintents
+function wget_with_retries {
+  local url=$1         # URL del fitxer a descarregar
+  local output=$2      # Nom del fitxer de sortida
+  local retry_limit=5  # Nombre màxim de reintents
+  local retry_count=0
+
+  while [ $retry_count -lt $retry_limit ]; do
+    echo -e "${BLUE}Intentant descarregar $url (Intent $((retry_count + 1))/$retry_limit)...${NC}"
+    wget -O "$output" "$url"
+
+    if [ $? -eq 0 ]; then
+      echo -e "${GREEN}Descarregat correctament: $url.${NC}"
+      return 0
+    else
+      echo -e "${YELLOW}Error descarregant $url. Reintentant en 5 segons...${NC}"
+      sleep 5
+      retry_count=$((retry_count + 1))
+    fi
+  done
+
+  echo -e "${RED}No s'ha pogut descarregar $url després de $retry_limit intents.${NC}"
+  return 1
+}
+
+
 # Funció per clonar repositoris amb reintents
 function clone_repository_with_retries {
   local repo_url=$1       # URL del repositori
@@ -90,6 +116,33 @@ function clone_repository_with_retries {
   echo -e "${RED}No s'ha pogut clonar el repositori després de $retry_limit intents: $repo_url.${NC}"
   return 1
 }
+
+
+# Funció per executar curl amb reintents
+function curl_with_retries {
+  local url=$1         # URL a descarregar
+  local output=$2      # Fitxer de sortida
+  local retry_limit=5  # Nombre màxim de reintents
+  local retry_count=0
+
+  while [ $retry_count -lt $retry_limit ]; do
+    echo -e "${BLUE}Intentant descarregar $url (Intent $((retry_count + 1))/$retry_limit)...${NC}"
+    curl -fsSL "$url" -o "$output"
+
+    if [ $? -eq 0 ]; then
+      echo -e "${GREEN}Descarregat correctament: $url.${NC}"
+      return 0
+    else
+      echo -e "${YELLOW}Error descarregant $url. Reintentant en 5 segons...${NC}"
+      sleep 5
+      retry_count=$((retry_count + 1))
+    fi
+  done
+
+  echo -e "${RED}No s'ha pogut descarregar $url després de $retry_limit intents.${NC}"
+  return 1
+}
+
 
 # Demanar el nom de la instància abans de tot
 echo ""
@@ -160,7 +213,30 @@ fi
   echo -e "  Usuari de la base de dades: ${YELLOW}$db_user${NC}"
   echo -e "  Contrasenya de la base de dades: ${YELLOW}$db_password${NC}"
   echo -e "  Correu electrònic de l'administrador: ${YELLOW}$admin_email${NC}"
-  echo -e "  Contrasenya de l'administrador: ${YELLOW}$admin_password${NC}"
+  echo -e "  Contrasenya de l'administrador: ${YELLOW}$admin_password${NC}"# Funció per descarregar fitxers amb reintents
+function wget_with_retries {
+  local url=$1         # URL del fitxer a descarregar
+  local output=$2      # Nom del fitxer de sortida
+  local retry_limit=5  # Nombre màxim de reintents
+  local retry_count=0
+
+  while [ $retry_count -lt $retry_limit ]; do
+    echo -e "${BLUE}Intentant descarregar $url (Intent $((retry_count + 1))/$retry_limit)...${NC}"
+    wget -O "$output" "$url"
+
+    if [ $? -eq 0 ]; then
+      echo -e "${GREEN}Descarregat correctament: $url.${NC}"
+      return 0
+    else
+      echo -e "${YELLOW}Error descarregant $url. Reintentant en 5 segons...${NC}"
+      sleep 5
+      retry_count=$((retry_count + 1))
+    fi
+  done
+
+  echo -e "${RED}No s'ha pogut descarregar $url després de $retry_limit intents.${NC}"
+  return 1
+}
   echo -e "  Idioma: ${YELLOW}$admin_language${NC}"
   echo -e "  País: ${YELLOW}$admin_country${NC}"
   echo -e "  Instal·lació de dades de mostra: ${YELLOW}$demo_data${NC}"
@@ -191,59 +267,204 @@ sudo apt update -y && sudo apt upgrade -y
 # Instal·lació de seguretat SSH i Fail2ban
 echo ""
 echo -e "${BLUE}Instal·lant seguretat SSH i Fail2ban...${NC}"
-sudo apt-get install openssh-server fail2ban -y
+
+  # Instal·lar els paquets
+  if sudo apt-get install -y openssh-server fail2ban; then
+    echo -e "${GREEN}SSH i Fail2ban s'han instal·lat correctament.${NC}"
+  else
+    echo -e "${RED}Error durant la instal·lació de SSH o Fail2ban.${NC}"
+    exit 1
+  fi
+
+  # Activar el servei SSH
+  echo ""
+  echo -e "${BLUE}Activant el servei SSH...${NC}"
+  if sudo systemctl enable ssh && sudo systemctl start ssh; then
+    echo -e "${GREEN}El servei SSH s'ha activat i iniciat correctament.${NC}"
+  else
+    echo -e "${RED}Error activant o iniciant el servei SSH.${NC}"
+    exit 1
+  fi
+
+  # Configurar Fail2ban
+  echo ""
+  echo -e "${BLUE}Configurant Fail2ban...${NC}"
+  sudo systemctl enable fail2ban
+  sudo systemctl start fail2ban
+  if sudo systemctl status fail2ban | grep -q "active (running)"; then
+    echo -e "${GREEN}Fail2ban s'ha configurat correctament.${NC}"
+  else
+    echo -e "${RED}Error configurant Fail2ban.${NC}"
+    exit 1
+  fi
+
 
 # Instal·lació de Wkhtmltopdf
 echo ""
 echo -e "${BLUE}Instal·lant dependències per Wkhtmltopdf...${NC}"
-sudo apt-get install -y fontconfig libjpeg-turbo8 libxrender1 xfonts-75dpi xfonts-base
-echo ""
-echo -e "${BLUE}Instal·lant Wkhtmltopdf...${NC}"
-wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || true
-sudo apt-get install -f -y
-sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || true
+  if sudo apt-get install -y fontconfig libjpeg-turbo8 libxrender1 xfonts-75dpi xfonts-base; then
+    echo -e "${GREEN}Les dependències per Wkhtmltopdf s'han instal·lat correctament.${NC}"
+  else
+    echo -e "${RED}Error durant la instal·lació de les dependències per Wkhtmltopdf.${NC}"
+    exit 1
+  fi
+
+  echo ""
+  echo -e "${BLUE}Instal·lant Wkhtmltopdf...${NC}"
+  if wget_with_retries "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb" "wkhtmltox_0.12.6.1-2.jammy_amd64.deb"; then
+    echo -e "${GREEN}Wkhtmltopdf descarregat correctament.${NC}"
+  else
+    echo -e "${RED}Error durant la descàrrega de Wkhtmltopdf.${NC}"
+    exit 1
+  fi
+
+  if sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb || sudo apt-get install -f -y || sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb; then
+    echo -e "${GREEN}Wkhtmltopdf s'ha instal·lat correctament.${NC}"
+  else
+    echo -e "${RED}Error durant la instal·lació de Wkhtmltopdf.${NC}"
+    exit 1
+  fi
+
+  # Elimina el fitxer .deb per netejar
+  rm -f wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+  echo -e "${GREEN}Fitxer d'instal·lació Wkhtmltopdf eliminat.${NC}"
+
 
 # Instal·lació de llibreries necessàries
 echo ""
 echo -e "${BLUE}Instal·lant llibreries necessàries...${NC}"
 sudo apt update
-sudo apt install -y vim curl wget gpg git gnupg2 software-properties-common apt-transport-https lsb-release ca-certificates build-essential python3 python3-pip python3-dev python3-venv python3-wheel libfreetype6-dev libxml2-dev libzip-dev libsasl2-dev python3-setuptools libjpeg-dev zlib1g-dev libpq-dev libxslt1-dev libldap2-dev libtiff5-dev libopenjp2-7-dev fontconfig fonts-dejavu-core fonts-dejavu-mono libfontconfig1 libfontenc1 libjpeg-turbo8 libxrender1 x11-common xfonts-75dpi xfonts-base xfonts-encodings xfonts-utils ssl-cert
+  if sudo apt install -y vim curl wget gpg git gnupg2 software-properties-common apt-transport-https lsb-release ca-certificates build-essential python3 python3-pip python3-dev python3-venv python3-wheel libfreetype6-dev libxml2-dev libzip-dev libsasl2-dev python3-setuptools libjpeg-dev zlib1g-dev libpq-dev libxslt1-dev libldap2-dev libtiff5-dev libopenjp2-7-dev fontconfig fonts-dejavu-core fonts-dejavu-mono libfontconfig1 libfontenc1 libjpeg-turbo8 libxrender1 x11-common xfonts-75dpi xfonts-base xfonts-encodings xfonts-utils ssl-cert; then
+    echo -e "${GREEN}Les llibreries s'han instal·lat correctament.${NC}"
+  else
+    echo -e "${RED}Error durant la instal·lació de les llibreries.${NC}"
+    exit 1
+  fi
+
 
 # Instal·lació de Node.js 18.x i NPM
 echo ""
 echo -e "${BLUE}Instal·lant Node.js i NPM (versió 18.x)...${NC}"
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-sudo npm install -g npm@9
-sudo apt-get install -y xfonts-75dpi xfonts-base fontconfig
-sudo npm install -g rtlcss less
-sudo apt autoremove -y
+
+  # Descarregar l'script setup_18.x amb reintents
+  if curl_with_retries "https://deb.nodesource.com/setup_18.x" "/tmp/setup_18.x"; then
+    # Executar l'script de configuració si la descàrrega és correcta
+    sudo -E bash /tmp/setup_18.x
+    echo -e "${GREEN}Configuració de Node.js completada.${NC}"
+  else
+    echo -e "${RED}Error: No s'ha pogut descarregar l'script de configuració de Node.js.${NC}"
+    exit 1
+  fi
+
+  # Instal·lar Node.js i NPM
+  if sudo apt-get install -y nodejs; then
+    echo -e "${GREEN}Node.js instal·lat correctament.${NC}"
+  else
+    echo -e "${RED}Error instal·lant Node.js.${NC}"
+    exit 1
+  fi
+
+  # Actualitzar NPM a la versió 9
+  if sudo npm install -g npm@9; then
+    echo -e "${GREEN}NPM actualitzat a la versió 9 correctament.${NC}"
+  else
+    echo -e "${RED}Error actualitzant NPM.${NC}"
+    exit 1
+  fi
+
+  # Instal·lar dependències addicionals
+  echo ""
+  echo -e "${BLUE}Instal·lant dependències addicionals...${NC}"
+  if sudo apt-get install -y xfonts-75dpi xfonts-base fontconfig; then
+    echo -e "${GREEN}Dependències instal·lades correctament.${NC}"
+  else
+    echo -e "${RED}Error instal·lant dependències.${NC}"
+    exit 1
+  fi
+
+  # Instal·lar paquets globals amb NPM
+  echo ""
+  echo -e "${BLUE}Instal·lant paquets globals amb NPM...${NC}"
+  if sudo npm install -g rtlcss less; then
+    echo -e "${GREEN}Paquets globals instal·lats correctament.${NC}"
+  else
+    echo -e "${RED}Error instal·lant paquets globals amb NPM.${NC}"
+    exit 1
+  fi
+
+  # Netejar el sistema
+  echo ""
+  echo -e "${BLUE}Netejant el sistema...${NC}"
+  sudo apt autoremove -y
+  echo -e "${GREEN}Neteja completada.${NC}"
 
 
 # Instal·lació de PostgreSQL 14
 echo ""
 echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
-curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /usr/share/keyrings/postgresql-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/postgresql-keyring.gpg] http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-sudo apt update
-sudo apt -y install postgresql-14 postgresql-client-14
+
+  # Afegir la clau GPG per al repositori
+  if curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/usr/share/keyrings/postgresql-keyring.gpg"; then
+    sudo gpg --dearmor -o /usr/share/keyrings/postgresql-keyring.gpg < /usr/share/keyrings/postgresql-keyring.gpg
+    echo -e "${GREEN}Clau GPG afegida correctament.${NC}"
+  else
+    echo -e "${RED}Error afegint la clau GPG després de múltiples intents.${NC}"
+    exit 1
+  fi
+
+  # Afegir el repositori de PostgreSQL
+  if echo "deb [signed-by=/usr/share/keyrings/postgresql-keyring.gpg] http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list; then
+    echo -e "${GREEN}Repositori de PostgreSQL afegit correctament.${NC}"
+  else
+    echo -e "${RED}Error afegint el repositori de PostgreSQL.${NC}"
+    exit 1
+  fi
+
+  # Actualitzar els repositoris
+  if sudo apt update; then
+    echo -e "${GREEN}Repositoris actualitzats correctament.${NC}"
+  else
+    echo -e "${RED}Error actualitzant els repositoris.${NC}"
+    exit 1
+  fi
+
+  # Instal·lar PostgreSQL 14
+  if sudo apt -y install postgresql-14 postgresql-client-14; then
+    echo -e "${GREEN}PostgreSQL 14 instal·lat correctament.${NC}"
+  else
+    echo -e "${RED}Error instal·lant PostgreSQL 14.${NC}"
+    exit 1
+  fi
+
 
 # Creació de la base de dades i usuari PostgreSQL per Odoo
 echo ""
-echo -e "${BLUE}Esborrant i creant base de dades i usuari PostgreSQL per Odoo previs, si hi són...${NC}"
+echo -e "${BLUE}Creant base de dades i usuari PostgreSQL per Odoo...${NC}"
 
-# Finalitzar connexions actives i eliminar la base de dades
-sudo su - postgres -c "psql -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$db_name';\""
-sudo su - postgres -c "psql -c \"DROP DATABASE IF EXISTS $db_name;\""
+  # Comprovar si la base de dades existeix
+  db_exists=$(sudo su - postgres -c "psql -tAc \"SELECT 1 FROM pg_database WHERE datname = '$db_name';\"")
+  if [ "$db_exists" == "1" ]; then
+    echo -e "${YELLOW}La base de dades $db_name existeix. Eliminant-la...${NC}"
+    sudo su - postgres -c "psql -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$db_name';\""
+    sudo su - postgres -c "psql -c \"DROP DATABASE $db_name;\""
+  else
+    echo -e "${GREEN}La base de dades $db_name no existeix. Continuant...${NC}"
+  fi
 
-# Eliminar l'usuari anterior si existeix
-sudo su - postgres -c "psql -c \"DROP USER IF EXISTS $db_user;\""
+  # Comprovar si l'usuari existeix
+  user_exists=$(sudo su - postgres -c "psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname = '$db_user';\"")
+  if [ "$user_exists" == "1" ]; then
+    echo -e "${YELLOW}L'usuari $db_user existeix. Eliminant-lo...${NC}"
+    sudo su - postgres -c "psql -c \"DROP USER $db_user;\""
+  else
+    echo -e "${GREEN}L'usuari $db_user no existeix. Continuant...${NC}"
+  fi
 
-# Crear la nova base de dades i usuari
-sudo su - postgres -c "psql -c \"CREATE DATABASE $db_name;\""
-sudo su - postgres -c "psql -c \"CREATE USER $db_user WITH PASSWORD '$db_password';\""
-sudo su - postgres -c "psql -c \"ALTER USER $db_user WITH SUPERUSER;\""
+  # Crear la base de dades i l'usuari
+  echo -e "${BLUE}Creant la base de dades i l'usuari...${NC}"
+  sudo su - postgres -c "psql -c \"CREATE DATABASE $db_name;\""
+  sudo su - postgres -c "psql -c \"CREATE USER $db_user WITH PASSWORD '$db_password';\""
+  sudo su - postgres -c "psql -c \"ALTER USER $db_user WITH SUPERUSER;\""
 
 echo -e "${GREEN}Base de dades $db_name i usuari $db_user creats correctament.${NC}"
 
@@ -251,178 +472,409 @@ echo -e "${GREEN}Base de dades $db_name i usuari $db_user creats correctament.${
 # Configurar autenticació PostgreSQL
 echo ""
 echo -e "${BLUE}Configurant autenticació PostgreSQL...${NC}"
-sudo bash -c "echo 'local   all             all                                     md5' >> /etc/postgresql/14/main/pg_hba.conf"
-sudo systemctl restart postgresql
+
+  # Afegir línia de configuració al fitxer pg_hba.conf
+  sudo bash -c "echo 'local   all             all                                     md5' >> /etc/postgresql/14/main/pg_hba.conf"
+
+  # Reiniciar el servei PostgreSQL
+  if sudo systemctl restart postgresql; then
+    echo -e "${GREEN}Configuració d'autenticació de PostgreSQL aplicada correctament i servei reiniciat.${NC}"
+  else
+    echo -e "${RED}Error en aplicar la configuració d'autenticació de PostgreSQL o en reiniciar el servei.${NC}"
+    exit 1
+  fi
+
 
 # Creació de l'usuari Odoo
 echo ""
 echo -e "${BLUE}Creant usuari Odoo al sistema...${NC}"
-sudo adduser --system --group --home=/opt/odoo --shell=/bin/bash odoo
+
+# Comprovar si l'usuari ja existeix
+  if id "odoo" &>/dev/null; then
+    echo -e "${YELLOW}L'usuari «odoo» ja existeix. Saltant aquest pas.${NC}"
+  else
+    sudo adduser --system --group --home=/opt/odoo --shell=/bin/bash odoo
+    echo -e "${GREEN}Usuari «odoo» creat correctament.${NC}"
+  fi
+  # Comprovar si el directori ja existeix
+  if [ -d "/opt/odoo" ]; then
+    echo -e "${YELLOW}El directori /opt/odoo ja existeix. Saltant aquest pas.${NC}"
+  else
+    sudo mkdir -p /opt/odoo
+    sudo chown odoo:odoo /opt/odoo
+    echo -e "${GREEN}Directori /opt/odoo creat correctament.${NC}"
+  fi
+
 
 # Clonar el repositori Odoo 16
-echo ""
-echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
-clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server" "16.0"
+  echo ""
+  echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
+  clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server" "16.0"
+
 
 # Crear entorn virtual de Python
 echo ""
 echo -e "${BLUE}Creant entorn virtual de Python...${NC}"
-sudo su - odoo -c "python3 -m venv /opt/odoo/odoo-server/venv"
-sudo su - odoo -c "/opt/odoo/odoo-server/venv/bin/pip install wheel"
-sudo su - odoo -c "/opt/odoo/odoo-server/venv/bin/pip install -r /opt/odoo/odoo-server/requirements.txt"
+
+  # Crear entorn virtual
+  if sudo su - odoo -c "python3 -m venv /opt/odoo/odoo-server/venv"; then
+    echo -e "${GREEN}Entorn virtual de Python creat correctament.${NC}"
+  else
+    echo -e "${RED}Error en crear l'entorn virtual de Python.${NC}"
+    exit 1
+  fi
+
+  # Instal·lar wheel
+  if sudo su - odoo -c "/opt/odoo/odoo-server/venv/bin/pip install wheel"; then
+    echo -e "${GREEN}Paquet 'wheel' instal·lat correctament.${NC}"
+  else
+    echo -e "${RED}Error en instal·lar el paquet 'wheel'.${NC}"
+    exit 1
+  fi
+
+  # Instal·lar paquets des de requirements.txt
+  if sudo su - odoo -c "/opt/odoo/odoo-server/venv/bin/pip install -r /opt/odoo/odoo-server/requirements.txt"; then
+    echo -e "${GREEN}Tots els paquets de 'requirements.txt' instal·lats correctament.${NC}"
+  else
+    echo -e "${RED}Error en instal·lar els paquets de 'requirements.txt'.${NC}"
+    exit 1
+  fi
+
 
 # Crear directori de logs
 echo ""
 echo -e "${BLUE}Creant directori de logs...${NC}"
-sudo mkdir /var/log/odoo
-sudo touch /var/log/odoo/odoo-server.log
-sudo chown odoo:odoo /var/log/odoo -R
-sudo chmod 777 /var/log/odoo
+
+  # Crear el directori de logs
+  if sudo mkdir -p /var/log/odoo; then
+    echo -e "${GREEN}Directori de logs creat correctament.${NC}"
+  else
+    echo -e "${RED}Error en crear el directori de logs.${NC}"
+    exit 1
+  fi
+
+  # Crear el fitxer de log
+  if sudo touch /var/log/odoo/odoo-server.log; then
+    echo -e "${GREEN}Fitxer de log creat correctament.${NC}"
+  else
+    echo -e "${RED}Error en crear el fitxer de log.${NC}"
+    exit 1
+  fi
+
+  # Establir permisos i propietari
+  if sudo chown odoo:odoo /var/log/odoo -R && sudo chmod 777 /var/log/odoo; then
+    echo -e "${GREEN}Permisos i propietari configurats correctament per al directori de logs.${NC}"
+  else
+    echo -e "${RED}Error en configurar permisos i propietari per al directori de logs.${NC}"
+    exit 1
+  fi
+
 
 # Crear fitxer de configuració d'Odoo
 echo ""
 echo -e "${BLUE}Creant fitxer de configuració d'Odoo...${NC}"
-sudo bash -c "cat > /etc/odoo.conf <<EOL
-[options]
-admin_passwd = $master_password
-db_host = 127.0.0.1
-db_port = 5432
-db_user = $db_user
-db_password = $db_password
-db_name = $db_name
-addons_path = /opt/odoo/odoo-server/addons,/opt/odoo/odoo-server/server-tools,/opt/odoo/odoo-server/custom_addons
-logfile = /var/log/odoo/odoo-server.log
-log_level  = debug
-admin_email = $admin_email
-admin_country = $admin_country
-admin_language = $admin_language
-demo_data = $demo_data
-instance_name = $instance_name
-static_ip = $static_ip
-port = 8069
-EOL"
-sudo chown odoo:odoo /etc/odoo.conf
+
+  # Escriure el fitxer de configuració
+  if sudo bash -c "cat > /etc/odoo.conf <<EOL
+  [options]
+  admin_passwd = $master_password
+  db_host = 127.0.0.1
+  db_port = 5432
+  db_user = $db_user
+  db_password = $db_password
+  db_name = $db_name
+  addons_path = /opt/odoo/odoo-server/addons,/opt/odoo/odoo-server/server-tools,/opt/odoo/odoo-server/custom_addons
+  logfile = /var/log/odoo/odoo-server.log
+  log_level  = debug
+  admin_email = $admin_email
+  admin_country = $admin_country
+  admin_language = $admin_language
+  demo_data = $demo_data
+  instance_name = $instance_name
+  static_ip = $static_ip
+  port = 8069
+  EOL"; then
+    echo -e "${GREEN}Fitxer de configuració creat correctament.${NC}"
+  else
+    echo -e "${RED}Error en crear el fitxer de configuració.${NC}"
+    exit 1
+  fi
+
+  # Establir permisos per al fitxer de configuració
+  if sudo chown odoo:odoo /etc/odoo.conf; then
+    echo -e "${GREEN}Permisos configurats correctament per al fitxer de configuració.${NC}"
+  else
+    echo -e "${RED}Error en configurar els permisos del fitxer de configuració.${NC}"
+    exit 1
+  fi
+
 
 # Crear servei d'Odoo
 echo ""
 echo -e "${BLUE}Creant servei d'Odoo...${NC}"
-sudo bash -c "cat > /etc/systemd/system/odoo-server.service <<EOL
-[Unit]
-Description=Odoo Service
-Requires=postgresql.service
-After=network.target postgresql.service
 
-[Service]
-Type=simple
-SyslogIdentifier=odoo
-PermissionsStartOnly=true
-User=odoo
-Group=odoo
-ExecStart=/opt/odoo/odoo-server/venv/bin/python3 /opt/odoo/odoo-server/odoo-bin -c /etc/odoo.conf
-StandardOutput=journal+console
+  # Escriure el fitxer de servei
+  if sudo bash -c "cat > /etc/systemd/system/odoo-server.service <<EOL
+  [Unit]
+  Description=Odoo Service
+  Requires=postgresql.service
+  After=network.target postgresql.service
 
-[Install]
-WantedBy=multi-user.target
-EOL"
+  [Service]
+  Type=simple
+  SyslogIdentifier=odoo
+  PermissionsStartOnly=true
+  User=odoo
+  Group=odoo
+  ExecStart=/opt/odoo/odoo-server/venv/bin/python3 /opt/odoo/odoo-server/odoo-bin -c /etc/odoo.conf
+  StandardOutput=journal+console
+
+  [Install]
+  WantedBy=multi-user.target
+  EOL"; then
+    echo -e "${GREEN}Fitxer de servei creat correctament.${NC}"
+  else
+    echo -e "${RED}Error en crear el fitxer de servei.${NC}"
+    exit 1
+  fi
+
+  # Reload systemd, iniciar i habilitar el servei
+  echo -e "${BLUE}Recarregant systemd i activant el servei...${NC}"
+  if sudo systemctl daemon-reload && sudo systemctl start odoo-server && sudo systemctl enable odoo-server; then
+    echo -e "${GREEN}Servei d'Odoo creat i activat correctament.${NC}"
+  else
+    echo -e "${RED}Error en activar el servei d'Odoo.${NC}"
+    exit 1
+  fi
+
 
 # Iniciar i habilitar el servei
 echo ""
 echo -e "${BLUE}Iniciant i habilitant el servei d'Odoo...${NC}"
-sudo systemctl daemon-reload
-sudo systemctl start odoo-server
-sudo systemctl enable odoo-server
+
+  # Recarregar systemd
+  if sudo systemctl daemon-reload; then
+    echo -e "${GREEN}Systemd recarregat correctament.${NC}"
+  else
+    echo -e "${RED}Error en recarregar systemd.${NC}"
+    exit 1
+  fi
+
+  # Iniciar el servei
+  if sudo systemctl start odoo-server; then
+    echo -e "${GREEN}El servei d'Odoo s'ha iniciat correctament.${NC}"
+  else
+    echo -e "${RED}Error en iniciar el servei d'Odoo.${NC}"
+    sudo journalctl -xeu odoo-server | tail -n 20
+    exit 1
+  fi
+
+  # Habilitar el servei
+  if sudo systemctl enable odoo-server; then
+    echo -e "${GREEN}El servei d'Odoo s'ha habilitat correctament per arrencar amb el sistema.${NC}"
+  else
+    echo -e "${RED}Error en habilitar el servei d'Odoo.${NC}"
+    exit 1
+  fi
+
 
 # Instal·lar mòduls bàsics
-#for module in "${modules[@]}"; do
-#  echo -e "${BLUE}Clonant el mòdul: ${YELLOW}$module${NC}"
-# clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server/addons/$module" "16.0"
-# done
+  #for module in "${modules[@]}"; do
+  #  echo -e "${BLUE}Clonant el mòdul: ${YELLOW}$module${NC}"
+  # clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server/addons/$module" "16.0"
+  # done
+
 
 # Instal·lació de Nginx
 echo ""
 echo -e "${BLUE}Instal·lant Nginx...${NC}"
-sudo apt install -y nginx
+
+  # Instal·lar Nginx
+  if sudo apt install -y nginx; then
+    echo -e "${GREEN}Nginx instal·lat correctament.${NC}"
+  else
+    echo -e "${RED}Error en instal·lar Nginx.${NC}"
+    exit 1
+  fi
+
+  # Comprovar l'estat del servei Nginx
+  if sudo systemctl status nginx > /dev/null 2>&1; then
+    echo -e "${GREEN}El servei Nginx està actiu i en funcionament.${NC}"
+  else
+    echo -e "${YELLOW}Nginx està instal·lat però no s'ha pogut iniciar automàticament. Intentant iniciar-lo...${NC}"
+    if sudo systemctl start nginx; then
+      echo -e "${GREEN}Nginx iniciat manualment amb èxit.${NC}"
+    else
+      echo -e "${RED}Error en iniciar el servei Nginx. Comprova els registres amb 'journalctl -xeu nginx'.${NC}"
+      exit 1
+    fi
+  fi
+
 
 # Configuració de Nginx
 echo ""
 echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
-# Elimina configuracions anteriors si existeixen
-sudo rm -f /etc/nginx/sites-available/$custom_domain
-sudo rm -f /etc/nginx/sites-enabled/$custom_domain
 
-# Escriu la nova configuració
-sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
-upstream odoo16 {
-    server 127.0.0.1:8069;
-}
+  # Comprovar i eliminar configuracions anteriors si existeixen
+  if [ -f /etc/nginx/sites-available/$custom_domain ]; then
+    echo -e "${YELLOW}El fitxer /etc/nginx/sites-available/$custom_domain ja existeix. Eliminant-lo...${NC}"
+    sudo rm -f /etc/nginx/sites-available/$custom_domain
+    echo -e "${GREEN}Fitxer eliminat correctament.${NC}"
+  fi
 
-server {
-    listen 80;
-    server_name $custom_domain;
+  if [ -f /etc/nginx/sites-enabled/$custom_domain ]; then
+    echo -e "${YELLOW}El fitxer /etc/nginx/sites-enabled/$custom_domain ja existeix. Eliminant-lo...${NC}"
+    sudo rm -f /etc/nginx/sites-enabled/$custom_domain
+    echo -e "${GREEN}Fitxer eliminat correctament.${NC}"
+  fi
 
-    access_log /var/log/nginx/odoo.access.log;
-    error_log /var/log/nginx/odoo.error.log;
 
-    location / {
-        proxy_pass http://odoo16;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-}
-EOL"
+# Escriure la nova configuració
+echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
+  if sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
+  upstream odoo16 {
+      server 127.0.0.1:8069;
+  }
+
+  server {
+      listen 80;
+      server_name $custom_domain;
+
+      access_log /var/log/nginx/odoo.access.log;
+      error_log /var/log/nginx/odoo.error.log;
+
+      location / {
+          proxy_pass http://odoo16;
+          proxy_set_header Host \$host;
+          proxy_set_header X-Real-IP \$remote_addr;
+          proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto \$scheme;
+      }
+  }
+  EOL"; then
+    echo -e "${GREEN}Fitxer de configuració creat correctament.${NC}"
+  else
+    echo -e "${RED}Error en crear el fitxer de configuració per a $custom_domain.${NC}"
+    exit 1
+  fi
+
+  # Activar la configuració de Nginx
+  echo -e "${BLUE}Activant configuració Nginx per a $custom_domain...${NC}"
+  if sudo ln -s /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/; then
+    echo -e "${GREEN}Configuració activada correctament.${NC}"
+  else
+    echo -e "${RED}Error en activar la configuració per a $custom_domain.${NC}"
+    exit 1
+  fi
+
+  # Comprovar la configuració de Nginx
+  echo -e "${BLUE}Verificant la configuració de Nginx...${NC}"
+  if sudo nginx -t; then
+    echo -e "${GREEN}La configuració de Nginx és vàlida.${NC}"
+  else
+    echo -e "${RED}Error en la configuració de Nginx. Revisa els errors i torna-ho a provar.${NC}"
+    exit 1
+  fi
+
+  # Reiniciar Nginx per aplicar els canvis
+  echo -e "${BLUE}Reiniciant Nginx per aplicar els canvis...${NC}"
+  if sudo systemctl restart nginx; then
+    echo -e "${GREEN}Nginx reiniciat correctament.${NC}"
+  else
+    echo -e "${RED}Error en reiniciar Nginx. Revisa els registres per trobar més informació.${NC}"
+    exit 1
+  fi
+
 
 # Activar configuració Nginx
 echo ""
 echo -e "${BLUE}Activant configuració Nginx...${NC}"
-sudo ln -sf /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/
+  if sudo ln -sf /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/; then
+    echo -e "${GREEN}Configuració Nginx activada correctament per al domini $custom_domain.${NC}"
+  else
+    echo -e "${RED}Error activant la configuració Nginx per al domini $custom_domain.${NC}"
+    exit 1
+  fi
+
 
 # Verificar configuració de Nginx
-if ! sudo nginx -t; then
-  echo -e "${RED}Error en la configuració de Nginx. Comprova els logs.${NC}"
-  exit 1
-fi
+echo ""
+echo -e "${BLUE}Verificant configuració de Nginx...${NC}"
+  if sudo nginx -t; then
+    echo -e "${GREEN}La configuració de Nginx és correcta.${NC}"
+  else
+    echo -e "${RED}Error en la configuració de Nginx. Comprova els logs.${NC}"
+    exit 1
+  fi
+
 
 # Configurar SSL amb Let's Encrypt
 echo ""
 echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
-# Instal·lar Certbot
-sudo apt install -y certbot python3-certbot-nginx
-# Generar certificat SSL per al domini
-if ! sudo certbot --nginx --non-interactive --agree-tos -m "$admin_email" -d "$custom_domain"; then
-  echo -e "${RED}Hi ha hagut un problema configurant SSL per al domini $custom_domain.${NC}"
-  exit 1
-else
-  echo -e "${GREEN}SSL configurat correctament per al domini $custom_domain.${NC}"
-fi
+
+  # Instal·lar Certbot
+  echo -e "${BLUE}Instal·lant Certbot i el plugin per a Nginx...${NC}"
+  if sudo apt install -y certbot python3-certbot-nginx; then
+    echo -e "${GREEN}Certbot instal·lat correctament.${NC}"
+  else
+    echo -e "${RED}Error instal·lant Certbot. Revisa la configuració del sistema.${NC}"
+    exit 1
+  fi
+
+  # Generar certificat SSL per al domini
+  echo -e "${BLUE}Generant certificat SSL per al domini $custom_domain...${NC}"
+  if sudo certbot --nginx --non-interactive --agree-tos -m "$admin_email" -d "$custom_domain"; then
+    echo -e "${GREEN}SSL configurat correctament per al domini $custom_domain.${NC}"
+  else
+    echo -e "${RED}Hi ha hagut un problema configurant SSL per al domini $custom_domain. Revisa els logs per obtenir més informació.${NC}"
+    exit 1
+  fi
+
 
 # Reiniciar Nginx per aplicar els canvis
-sudo systemctl restart nginx
+echo ""
+echo -e "${BLUE}Reiniciant Nginx per aplicar els canvis...${NC}"
+  if sudo systemctl restart nginx; then
+    echo -e "${GREEN}Nginx reiniciat correctament.${NC}"
+  else
+    echo -e "${RED}Error en reiniciar Nginx. Comprova els logs del sistema per més informació.${NC}"
+    exit 1
+  fi
+
 
 # Funció per esborrar fitxers .deb i .sh
 echo ""
-echo -e "${BLUE}Cercant i esborrant fitxers .deb i .sh al directori arrel...${NC}"
+echo -e "${BLUE}Cercant i esborrant fitxers .deb i .sh al directori arrel, excloent ubicacions sensibles...${NC}"
 
-# Busca i elimina fitxers .deb i .sh
-sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) -exec rm -f {} +
-echo -e "${GREEN}Tots els fitxers .deb i .sh han estat eliminats del directori arrel.${NC}"
+  # Busca i elimina fitxers .deb i .sh fora de directoris crítics
+  sudo find / -type f \( -name "*.deb" -o -name "*.sh" \) \
+    -not -path "/proc/*" -not -path "/sys/*" -not -path "/dev/*" -not -path "/snap/*" \
+    -exec rm -f {} + 2>/dev/null
+
+  # Confirmació d'eliminació
+  echo -e "${GREEN}Tots els fitxers .deb i .sh no essencials han estat eliminats.${NC}"
+
 
 # Test d'accés a Odoo
 echo ""
 echo -e "${BLUE}Verificant l'accés a Odoo...${NC}"
-# Comprovar accés per IP
-if curl -s -o /dev/null -w "%{http_code}" "https://$static_ip:8069" | grep -q "200"; then
-  echo -e "${GREEN}Accés correcte mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC}"
-else
-  echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC}"
-fi
-# Comprovar accés pel domini
-if curl -s -o /dev/null -w "%{http_code}" "https://$custom_domain" | grep -q "200"; then
-  echo -e "${GREEN}Accés correcte mitjançant el domini: ${YELLOW}https://$custom_domain${NC}"
-else
-  echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant el domini: ${YELLOW}https://$custom_domain${NC}"
-fi
+
+  # Comprovar accés per IP
+  response_code_ip=$(curl -s -o /dev/null -w "%{http_code}" "http://$static_ip:8069")
+  if [ "$response_code_ip" -eq 200 ]; then
+    echo -e "${GREEN}Accés correcte mitjançant la IP: ${YELLOW}http://$static_ip:8069${NC}"
+  else
+    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant la IP: ${YELLOW}http://$static_ip:8069${NC} (Codi HTTP: $response_code_ip)"
+  fi
+
+  # Comprovar accés pel domini
+  response_code_domain=$(curl -s -o /dev/null -w "%{http_code}" "http://$custom_domain")
+  if [ "$response_code_domain" -eq 200 ]; then
+    echo -e "${GREEN}Accés correcte mitjançant el domini: ${YELLOW}http://$custom_domain${NC}"
+  else
+    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant el domini: ${YELLOW}http://$custom_domain${NC} (Codi HTTP: $response_code_domain)"
+  fi
+
 
 # Mostrar les variables i el missatge final
 mostrar_valors
