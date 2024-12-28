@@ -760,7 +760,7 @@ echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
     sudo rm -f /etc/nginx/sites-available/$custom_domain
     echo -e "${GREEN}Fitxer /etc/nginx/sites-available/$custom_domain eliminat correctament.${NC}"
   else
-    echo -e "${BLUE}El fitxer /etc/nginx/sites-available/$custom_domain no existeix.${NC}"
+    echo -e "${YELLOW}El fitxer /etc/nginx/sites-available/$custom_domain no existeix.${NC}"
   fi
 
   if [ -L /etc/nginx/sites-enabled/$custom_domain ]; then
@@ -768,7 +768,7 @@ echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
     sudo rm -f /etc/nginx/sites-enabled/$custom_domain
     echo -e "${GREEN}Enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain eliminat correctament.${NC}"
   else
-    echo -e "${BLUE}L'enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain no existeix.${NC}"
+    echo -e "${YELLOW}L'enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain no existeix.${NC}"
   fi
 
 
@@ -791,7 +791,7 @@ echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
           proxy_set_header Host \$host;
           proxy_set_header X-Real-IP \$remote_addr;
           proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto \$scheme;
+          proxy_set_header X-Forwarded-Proto https;
       }
   }
 EOL";
