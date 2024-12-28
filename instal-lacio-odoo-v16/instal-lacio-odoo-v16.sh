@@ -773,6 +773,10 @@ echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
 
 
 # Crear el nou fitxer de configuració
+# Configuració del fitxer Nginx amb substitució d'entorns
+export HOST_VAR='$host'
+export REMOTE_ADDR_VAR='$remote_addr'
+export PROXY_VAR='$proxy_add_x_forwarded_for'
 echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
 if sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
 server {
@@ -784,9 +788,9 @@ server {
 
     location / {
         proxy_pass http://odoo16;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host $HOST_VAR;
+        proxy_set_header X-Real-IP $REMOTE_ADDR_VAR;
+        proxy_set_header X-Forwarded-For $PROXY_VAR;
         proxy_set_header X-Forwarded-Proto https;
     }
 }
