@@ -748,19 +748,19 @@ echo -e "${GREEN}Configuracions anteriors eliminades.${NC}"
 echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
 if sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
 server {
-  listen 80;
-  server_name $custom_domain;
+    listen 80;
+    server_name $custom_domain;
 
-  access_log /var/log/nginx/odoo.access.log;
-  error_log /var/log/nginx/odoo.error.log;
+    access_log /var/log/nginx/odoo.access.log;
+    error_log /var/log/nginx/odoo.error.log;
 
-  location / {
-    proxy_pass http://odoo16;
-    proxy_set_header Host \$host;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto https;
-  }
+    location / {
+        proxy_pass http://odoo16;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
 }
 EOL"; then
   echo -e "${GREEN}Fitxer de configuració creat correctament.${NC}"
