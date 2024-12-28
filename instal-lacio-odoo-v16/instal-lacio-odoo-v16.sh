@@ -715,129 +715,86 @@ echo -e "${BLUE}Iniciant i habilitant el servei d'Odoo...${NC}"
 echo ""
 echo -e "${BLUE}Instal·lant Nginx...${NC}"
 
-  # Eliminar instal·lació prèvia de Nginx
-  echo ""
-  echo -e "${BLUE}Comprovant si hi ha una instal·lació prèvia de Nginx...${NC}"
-  if dpkg -l | grep -q nginx; then
-    echo -e "${YELLOW}S'ha detectat una instal·lació prèvia de Nginx. Eliminant-la...${NC}"
-    sudo systemctl stop nginx || true
-    sudo apt purge -y nginx* || true
-    sudo rm -rf /etc/nginx /var/log/nginx /var/lib/nginx
-    echo -e "${GREEN}Instal·lació prèvia de Nginx eliminada correctament.${NC}"
-  else
-    echo -e "${GREEN}No s'ha detectat cap instal·lació prèvia de Nginx.${NC}"
-  fi
+# Eliminar instal·lació prèvia de Nginx
+echo -e "${BLUE}Comprovant si hi ha una instal·lació prèvia de Nginx...${NC}"
+if dpkg -l | grep -q nginx; then
+  echo -e "${YELLOW}S'ha detectat una instal·lació prèvia de Nginx. Eliminant-la...${NC}"
+  sudo systemctl stop nginx || true
+  sudo apt purge -y nginx* || true
+  sudo rm -rf /etc/nginx /var/log/nginx /var/lib/nginx
+  echo -e "${GREEN}Instal·lació prèvia de Nginx eliminada correctament.${NC}"
+else
+  echo -e "${GREEN}No s'ha detectat cap instal·lació prèvia de Nginx.${NC}"
+fi
 
-  # Instal·lar Nginx
-  if sudo apt install -y nginx; then
-    echo -e "${GREEN}Nginx instal·lat correctament.${NC}"
-  else
-    echo -e "${RED}Error en instal·lar Nginx.${NC}"
-    exit 1
-  fi
-
-  # Comprovar l'estat del servei Nginx
-  if sudo systemctl status nginx > /dev/null 2>&1; then
-    echo -e "${GREEN}El servei Nginx està actiu i en funcionament.${NC}"
-  else
-    echo -e "${YELLOW}Nginx està instal·lat però no s'ha pogut iniciar automàticament. Intentant iniciar-lo...${NC}"
-    if sudo systemctl start nginx; then
-      echo -e "${GREEN}Nginx iniciat manualment amb èxit.${NC}"
-    else
-      echo -e "${RED}Error en iniciar el servei Nginx. Comprova els registres amb 'journalctl -xeu nginx'.${NC}"
-      exit 1
-    fi
-  fi
-
+# Instal·lar Nginx
+if sudo apt install -y nginx; then
+  echo -e "${GREEN}Nginx instal·lat correctament.${NC}"
+else
+  echo -e "${RED}Error en instal·lar Nginx.${NC}"
+  exit 1
+fi
 
 # Configuració de Nginx
 echo ""
 echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
 
-  # Comprovar i eliminar configuracions anteriors si existeixen
-  if [ -f /etc/nginx/sites-available/$custom_domain ]; then
-    echo -e "${YELLOW}El fitxer /etc/nginx/sites-available/$custom_domain ja existeix. Eliminant-lo...${NC}"
-    sudo rm -f /etc/nginx/sites-available/$custom_domain
-    echo -e "${GREEN}Fitxer /etc/nginx/sites-available/$custom_domain eliminat correctament.${NC}"
-  else
-    echo -e "${YELLOW}El fitxer /etc/nginx/sites-available/$custom_domain no existeix.${NC}"
-  fi
-
-  if [ -L /etc/nginx/sites-enabled/$custom_domain ]; then
-    echo -e "${YELLOW}L'enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain ja existeix. Eliminant-lo...${NC}"
-    sudo rm -f /etc/nginx/sites-enabled/$custom_domain
-    echo -e "${GREEN}Enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain eliminat correctament.${NC}"
-  else
-    echo -e "${YELLOW}L'enllaç simbòlic /etc/nginx/sites-enabled/$custom_domain no existeix.${NC}"
-  fi
-
+# Eliminar configuracions anteriors
+sudo rm -f /etc/nginx/sites-available/$custom_domain
+sudo rm -f /etc/nginx/sites-enabled/$custom_domain
+echo -e "${GREEN}Configuracions anteriors eliminades.${NC}"
 
 # Crear el nou fitxer de configuració
-# Configuració del fitxer Nginx amb substitució d'entorns
-export HOST_VAR='$host'
-export REMOTE_ADDR_VAR='$remote_addr'
-export PROXY_VAR='$proxy_add_x_forwarded_for'
 echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
 if sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
 server {
     listen 80;
-    server_name intranet.momoescolaviva.cat;
+    server_name $custom_domain;
 
     access_log /var/log/nginx/odoo.access.log;
     error_log /var/log/nginx/odoo.error.log;
 
     location / {
         proxy_pass http://odoo16;
-        proxy_set_header Host $HOST_VAR;
-        proxy_set_header X-Real-IP $REMOTE_ADDR_VAR;
-        proxy_set_header X-Forwarded-For $PROXY_VAR;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto https;
     }
 }
-EOL";
-  then
-    echo -e "${GREEN}Fitxer de configuració creat correctament.${NC}"
-  else
-    echo -e "${RED}Error en crear el fitxer de configuració per a $custom_domain.${NC}"
-    exit 1
-  fi
+EOL"; then
+  echo -e "${GREEN}Fitxer de configuració creat correctament.${NC}"
+else
+  echo -e "${RED}Error en crear el fitxer de configuració per a $custom_domain.${NC}"
+  exit 1
+fi
 
-  # Reiniciar Nginx per aplicar els canvis
-  echo -e "${BLUE}Reiniciant Nginx per aplicar els canvis...${NC}"
-  if sudo systemctl restart nginx; then
-    echo -e "${GREEN}Nginx reiniciat correctament.${NC}"
-  else
-    echo -e "${RED}Error en reiniciar Nginx. Revisa els registres per trobar més informació.${NC}"
-    exit 1
-  fi
-
-# Activar configuració Nginx
-echo ""
+# Activar configuració de Nginx
 echo -e "${BLUE}Activant configuració Nginx per a $custom_domain...${NC}"
-
-  # Verificar si l'enllaç simbòlic ja existeix
-  if [ -L "/etc/nginx/sites-enabled/$custom_domain" ]; then
-    echo -e "${YELLOW}L'enllaç simbòlic ja existeix per a $custom_domain. No cal crear-lo.${NC}"
-  else
-    # Crear un nou enllaç simbòlic
-    if sudo ln -s "/etc/nginx/sites-available/$custom_domain" "/etc/nginx/sites-enabled/"; then
-      echo -e "${GREEN}Configuració Nginx activada correctament per al domini $custom_domain.${NC}"
-    else
-      echo -e "${RED}Error activant la configuració Nginx per al domini $custom_domain.${NC}"
-      exit 1
-    fi
-  fi
-
+sudo ln -sf /etc/nginx/sites-available/$custom_domain /etc/nginx/sites-enabled/
+echo -e "${GREEN}Configuració Nginx activada correctament.${NC}"
 
 # Verificar configuració de Nginx
 echo ""
 echo -e "${BLUE}Verificant configuració de Nginx...${NC}"
-  if sudo nginx -t; then
-    echo -e "${GREEN}La configuració de Nginx és correcta.${NC}"
-  else
-    echo -e "${RED}Error en la configuració de Nginx. Comprova els logs.${NC}"
-    exit 1
-  fi
+if sudo nginx -t; then
+  echo -e "${GREEN}La configuració de Nginx és correcta.${NC}"
+else
+  echo -e "${RED}Error en la configuració de Nginx. Comprova els logs.${NC}"
+  sudo journalctl -xeu nginx | tail -n 20
+  exit 1
+fi
+
+# Reiniciar Nginx per aplicar els canvis
+echo -e "${BLUE}Reiniciant Nginx per aplicar els canvis...${NC}"
+if sudo systemctl restart nginx; then
+  echo -e "${GREEN}Nginx reiniciat correctament.${NC}"
+else
+  echo -e "${RED}Error en reiniciar Nginx. Revisa els registres per trobar més informació.${NC}"
+  sudo journalctl -xeu nginx | tail -n 20
+  exit 1
+fi
+
 
 
 # Configurar SSL amb Let's Encrypt
