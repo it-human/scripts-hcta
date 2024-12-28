@@ -801,7 +801,6 @@ else
 fi
 
 
-
 # Configurar SSL amb Let's Encrypt
 echo ""
 echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
