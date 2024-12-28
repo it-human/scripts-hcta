@@ -800,16 +800,11 @@ else
   exit 1
 fi
 
+
+
 # Configurar SSL amb Let's Encrypt
 echo ""
 echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
-
-  # Assegurar que el port 80 està lliure
-  echo -e "${BLUE}Assegurant que el port 80 està lliure...${NC}"
-  sudo systemctl stop apache2 2>/dev/null || true
-  sudo systemctl disable apache2 2>/dev/null || true
-  sudo fuser -k 80/tcp || true
-  echo -e "${GREEN}Port 80 alliberat correctament.${NC}"
 
   # Instal·lar Certbot
   echo -e "${BLUE}Instal·lant Certbot i el plugin per a Nginx...${NC}"
