@@ -802,7 +802,7 @@ echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header X-Forwarded-Proto https;
       }
 
       # Long polling (per a xats o notificacions en temps real)
