@@ -747,18 +747,22 @@ echo -e "${GREEN}Configuracions anteriors eliminades.${NC}"
 # Crear el nou fitxer de configuració
 echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
 if sudo bash -c 'cat > /etc/nginx/sites-available/'"$custom_domain"' <<EOL
+upstream odoo16 {
+    server 127.0.0.1:8069;
+}
+
 server {
     listen 80;
-    server_name '"$custom_domain"';
+    server_name intranet.momoescolaviva.cat;
 
     access_log /var/log/nginx/odoo.access.log;
     error_log /var/log/nginx/odoo.error.log;
 
     location / {
         proxy_pass http://odoo16;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto https;
     }
 }
