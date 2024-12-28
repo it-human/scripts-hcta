@@ -727,6 +727,13 @@ else
   echo -e "${GREEN}No s'ha detectat cap instal·lació prèvia de Nginx.${NC}"
 fi
 
+# Assegurar que el port 80 està lliure
+echo -e "${BLUE}Assegurant que el port 80 està lliure...${NC}"
+sudo systemctl stop apache2 2>/dev/null || true
+sudo systemctl disable apache2 2>/dev/null || true
+sudo fuser -k 80/tcp || true
+echo -e "${GREEN}Port 80 alliberat correctament.${NC}"
+
 # Instal·lar Nginx
 if sudo apt install -y nginx; then
   echo -e "${GREEN}Nginx instal·lat correctament.${NC}"
@@ -734,6 +741,7 @@ else
   echo -e "${RED}Error en instal·lar Nginx.${NC}"
   exit 1
 fi
+
 
 # Configuració de Nginx
 echo ""
@@ -805,13 +813,6 @@ fi
 echo ""
 echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
 
-  # Assegurar que el port 80 està lliure
-  echo -e "${BLUE}Assegurant que el port 80 està lliure...${NC}"
-  sudo systemctl stop apache2 2>/dev/null || true
-  sudo systemctl disable apache2 2>/dev/null || true
-  sudo fuser -k 80/tcp || true
-  echo -e "${GREEN}Port 80 alliberat correctament.${NC}"
-
   # Instal·lar Certbot
   echo -e "${BLUE}Instal·lant Certbot i el plugin per a Nginx...${NC}"
   if sudo apt install -y certbot python3-certbot-nginx; then
@@ -842,7 +843,8 @@ if sudo nginx -t; then
   else
     echo -e "${RED}Error en reiniciar Nginx. Comprova els logs del sistema per més informació.${NC}"
     exit 1
-  fi
+  fiS'està configurant nginx (1.24.0-2ubuntu7.1)…
+Not attempting to start NGINX, port 80 is already in use.
 else
   echo -e "${RED}Error en la configuració de Nginx. No es pot reiniciar.${NC}"
   sudo nginx -t # Mostra els errors de configuració
