@@ -598,25 +598,25 @@ echo -e "${BLUE}Creant directori de logs...${NC}"
 echo ""
 echo -e "${BLUE}Creant fitxer de configuració d'Odoo...${NC}"
 
-  # Escriure el fitxer de configuració
-  if sudo bash -c "cat > /etc/odoo.conf <<EOL
-  [options]
-  admin_passwd = $master_password
-  db_host = 127.0.0.1
-  db_port = 5432
-  db_user = $db_user
-  db_password = $db_password
-  db_name = $db_name
-  addons_path = /opt/odoo/odoo-server/addons,/opt/odoo/odoo-server/server-tools,/opt/odoo/odoo-server/custom_addons
-  logfile = /var/log/odoo/odoo-server.log
-  log_level  = debug
-  admin_email = $admin_email
-  admin_country = $admin_country
-  admin_language = $admin_language
-  demo_data = $demo_data
-  instance_name = $instance_name
-  static_ip = $static_ip
-  port = 8069
+# Escriure el fitxer de configuració
+if sudo bash -c "cat > /etc/odoo.conf <<EOL
+[options]
+admin_passwd = $master_password
+db_host = 127.0.0.1
+db_port = 5432
+db_user = $db_user
+db_password = $db_password
+db_name = $db_name
+addons_path = /opt/odoo/odoo-server/addons,/opt/odoo/odoo-server/server-tools,/opt/odoo/odoo-server/custom_addons
+logfile = /var/log/odoo/odoo-server.log
+log_level  = debug
+admin_email = $admin_email
+admin_country = $admin_country
+admin_language = $admin_language
+demo_data = $demo_data
+instance_name = $instance_name
+static_ip = $static_ip
+port = 8069
 EOL";
   then
     echo -e "${GREEN}Fitxer de configuració creat correctament.${NC}"
@@ -638,24 +638,24 @@ EOL";
 echo ""
 echo -e "${BLUE}Creant servei d'Odoo...${NC}"
 
-  # Escriure el fitxer de servei
-  if sudo bash -c "cat > /etc/systemd/system/odoo-server.service <<EOL
-  [Unit]
-  Description=Odoo Service
-  Requires=postgresql.service
-  After=network.target postgresql.service
+# Escriure el fitxer de servei
+if sudo bash -c "cat > /etc/systemd/system/odoo-server.service <<EOL
+[Unit]
+Description=Odoo Service
+Requires=postgresql.service
+After=network.target postgresql.service
 
-  [Service]
-  Type=simple
-  SyslogIdentifier=odoo
-  PermissionsStartOnly=true
-  User=odoo
-  Group=odoo
-  ExecStart=/opt/odoo/odoo-server/venv/bin/python3 /opt/odoo/odoo-server/odoo-bin -c /etc/odoo.conf
-  StandardOutput=journal+console
+[Service]
+Type=simple
+SyslogIdentifier=odoo
+PermissionsStartOnly=true
+User=odoo
+Group=odoo
+ExecStart=/opt/odoo/odoo-server/venv/bin/python3 /opt/odoo/odoo-server/odoo-bin -c /etc/odoo.conf
+StandardOutput=journal+console
 
-  [Install]
-  WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
 EOL";
   then
     echo -e "${GREEN}Fitxer de servei creat correctament.${NC}"
@@ -775,49 +775,49 @@ echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
 # Crear el nou fitxer de configuració
 echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
 if sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
-  upstream odoo16 {
-    server 127.0.0.1:8069;
-  }
+upstream odoo16 {
+  server 127.0.0.1:8069;
+}
 
-  upstream odoochat {
-      server 127.0.0.1:8072;
-  }
+upstream odoochat {
+    server 127.0.0.1:8072;
+}
 
-  server {
-      listen 80;
-      server_name $custom_domain;
+server {
+    listen 80;
+    server_name $custom_domain;
 
-      access_log /var/log/nginx/odoo.access.log;
-      error_log /var/log/nginx/odoo.error.log;
+    access_log /var/log/nginx/odoo.access.log;
+    error_log /var/log/nginx/odoo.error.log;
 
-      # Optimització del buffer
-      proxy_buffers 16 64k;
-      proxy_buffer_size 128k;
+    # Optimització del buffer
+    proxy_buffers 16 64k;
+    proxy_buffer_size 128k;
 
-      # Trànsit general
-      location / {
-          proxy_pass http://odoo16;
-          proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
-          proxy_redirect off;
-          proxy_set_header Host \$host;
-          proxy_set_header X-Real-IP \$remote_addr;
-          proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto https;
-      }
+    # Trànsit general
+    location / {
+        proxy_pass http://odoo16;
+        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+        proxy_redirect off;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
 
-      # Long polling (per a xats o notificacions en temps real)
-      location /longpolling {
-          proxy_pass http://odoochat;
-      }
+    # Long polling (per a xats o notificacions en temps real)
+    location /longpolling {
+        proxy_pass http://odoochat;
+    }
 
-      # Recursos estàtics amb memòria cau
-      location ~* /web/static/ {
-          proxy_cache_valid 200 60m;
-          proxy_buffering on;
-          expires 864000;
-          proxy_pass http://odoo16;
-      }
-  }
+    # Recursos estàtics amb memòria cau
+    location ~* /web/static/ {
+        proxy_cache_valid 200 60m;
+        proxy_buffering on;
+        expires 864000;
+        proxy_pass http://odoo16;
+    }
+}
 EOL";
   then
     echo -e "${GREEN}Fitxer de configuració creat correctament.${NC}"
