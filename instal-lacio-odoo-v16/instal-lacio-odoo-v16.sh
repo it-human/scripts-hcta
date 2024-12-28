@@ -775,47 +775,19 @@ echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
 # Crear el nou fitxer de configuració
 echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
 if sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
-upstream odoo16 {
-  server 127.0.0.1:8069;
-}
-
-upstream odoochat {
-    server 127.0.0.1:8072;
-}
-
 server {
     listen 80;
-    server_name $custom_domain;
+    server_name intranet.momoescolaviva.cat;
 
     access_log /var/log/nginx/odoo.access.log;
     error_log /var/log/nginx/odoo.error.log;
 
-    # Optimització del buffer
-    proxy_buffers 16 64k;
-    proxy_buffer_size 128k;
-
-    # Trànsit general
     location / {
         proxy_pass http://odoo16;
-        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
-        proxy_redirect off;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto https;
-    }
-
-    # Long polling (per a xats o notificacions en temps real)
-    location /longpolling {
-        proxy_pass http://odoochat;
-    }
-
-    # Recursos estàtics amb memòria cau
-    location ~* /web/static/ {
-        proxy_cache_valid 200 60m;
-        proxy_buffering on;
-        expires 864000;
-        proxy_pass http://odoo16;
     }
 }
 EOL";
