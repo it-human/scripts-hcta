@@ -774,7 +774,7 @@ echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
 
   # Crear el nou fitxer de configuració
   echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
-  if sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
+if sudo bash -c "cat > /etc/nginx/sites-available/$custom_domain <<EOL
   upstream odoo16 {
     server 127.0.0.1:8069;
   }
