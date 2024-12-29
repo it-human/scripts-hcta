@@ -815,29 +815,23 @@ fi
 echo ""
 echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
 
-  # Instal·lar Certbot
-  echo -e "${BLUE}Instal·lant Certbot i el plugin per a Nginx...${NC}"
-  if sudo apt install -y certbot python3-certbot-nginx; then
-    echo -e "${GREEN}Certbot instal·lat correctament.${NC}"
-  else
-    echo -e "${RED}Error instal·lant Certbot. Revisa la configuració del sistema.${NC}"
-    exit 1
-  fi
+# Instal·lar Certbot
+echo -e "${BLUE}Instal·lant Certbot i el plugin per a Nginx...${NC}"
+if sudo apt install -y certbot python3-certbot-nginx; then
+  echo -e "${GREEN}Certbot instal·lat correctament.${NC}"
+else
+  echo -e "${RED}Error instal·lant Certbot. Revisa la configuració del sistema.${NC}"
+  exit 1
+fi
 
-  # Crear carpetes necessàries per a la validació HTTP
-  echo -e "${BLUE}Assegurant l'existència de la carpeta .well-known/acme-challenge...${NC}"
-  sudo mkdir -p /var/www/html/.well-known/acme-challenge
-  sudo chmod -R 755 /var/www/html/.well-known
-  echo -e "${GREEN}Carpeta .well-known/acme-challenge preparada correctament.${NC}"
-
-  # Generar certificat SSL per al domini
-  echo -e "${BLUE}Generant certificat SSL per al domini $custom_domain...${NC}"
-  if sudo certbot --nginx --non-interactive --agree-tos -m "$admin_email" -d "$custom_domain"; then
-    echo -e "${GREEN}SSL configurat correctament per al domini $custom_domain.${NC}"
-  else
-    echo -e "${RED}Hi ha hagut un problema configurant SSL per al domini $custom_domain. Revisa els logs per obtenir més informació.${NC}"
-    exit 1
-  fi
+# Generar certificat SSL per al domini
+echo -e "${BLUE}Generant certificat SSL per al domini...${NC}"
+if sudo certbot --nginx --non-interactive --agree-tos -d "$custom_domain"; then
+  echo -e "${GREEN}SSL configurat correctament per al domini.${NC}"
+else
+  echo -e "${RED}Hi ha hagut un problema configurant SSL per al domini. Revisa els logs per obtenir més informació.${NC}"
+  exit 1
+fi
 
 
 # Reiniciar Nginx per aplicar els canvis
