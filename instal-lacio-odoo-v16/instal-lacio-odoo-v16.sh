@@ -740,7 +740,6 @@ else
   exit 1
 fi
 
-
 # Configuració de Nginx
 echo ""
 echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
@@ -831,7 +830,6 @@ echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
   sudo chmod -R 755 /var/www/html/.well-known
   echo -e "${GREEN}Carpeta .well-known/acme-challenge preparada correctament.${NC}"
 
-
   # Generar certificat SSL per al domini
   echo -e "${BLUE}Generant certificat SSL per al domini $custom_domain...${NC}"
   if sudo certbot --nginx --non-interactive --agree-tos -m "$admin_email" -d "$custom_domain"; then
@@ -853,8 +851,7 @@ if sudo nginx -t; then
   else
     echo -e "${RED}Error en reiniciar Nginx. Comprova els logs del sistema per més informació.${NC}"
     exit 1
-  fiS'està configurant nginx (1.24.0-2ubuntu7.1)…
-Not attempting to start NGINX, port 80 is already in use.
+  fi
 else
   echo -e "${RED}Error en la configuració de Nginx. No es pot reiniciar.${NC}"
   sudo nginx -t # Mostra els errors de configuració
