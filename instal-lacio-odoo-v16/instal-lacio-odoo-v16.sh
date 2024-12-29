@@ -485,7 +485,7 @@ echo -e "${BLUE}Creant usuari Odoo al sistema...${NC}"
     sudo adduser --system --group --home=/opt/odoo --shell=/bin/bash odoo
     echo -e "${GREEN}Usuari «odoo» creat correctament.${NC}"
   fi
-  
+
   # Comprovar si el directori ja existeix
   if [ -d "/opt/odoo" ]; then
     echo -e "${YELLOW}El directori /opt/odoo ja existeix. Saltant aquest pas.${NC}"
@@ -832,37 +832,29 @@ echo -e "${BLUE}Cercant i esborrant fitxers .deb i .sh al directori arrel, exclo
 echo ""
 echo -e "${BLUE}Verificant l'accés a Odoo...${NC}"
 
-  # Comprovar accés per IP (HTTP)
-  response_code_ip=$(curl -s -o /dev/null -w "%{http_code}" "http://$static_ip:8069")
-  if [ "$response_code_ip" -eq 200 ]; then
-    echo -e "${GREEN}Accés correcte mitjançant la IP: ${YELLOW}http://$static_ip:8069${NC}"
-  else
-    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant la IP: ${YELLOW}http://$static_ip:8069${NC} (Codi HTTP: $response_code_ip)"
-  fi
+# Funció per comprovar accés
+comprovar_acces() {
+  local url=$1
+  local tipus=$2
 
-  # Comprovar accés per IP (HTTPS)
-  response_code_ip_https=$(curl -s -o /dev/null -w "%{http_code}" "https://$static_ip:8069")
-  if [ "$response_code_ip_https" -eq 200 ]; then
-    echo -e "${GREEN}Accés correcte mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC}"
+  response_code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+  if [ "$response_code" -eq 200 ]; then
+  echo -e "${GREEN}Accés correcte mitjançant $tipus: ${YELLOW}$url${NC}"
+  elif [ "$response_code" -eq 301 ]; then
+    echo -e "${YELLOW}Redirecció detectada mitjançant $tipus: ${YELLOW}$url${NC} (Codi HTTP: $response_code)"
   else
-    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC} (Codi HTTP: $response_code_ip_https)"
-  fi
+    echo -e "${RED}No s'ha pogut accedir mitjançant $tipus: ${YELLOW}$url${NC} (Codi HTTP: $response_code)"
+    fi
+}
 
-  # Comprovar accés pel domini (HTTP)
-  response_code_domain=$(curl -s -o /dev/null -w "%{http_code}" "http://$custom_domain")
-  if [ "$response_code_domain" -eq 200 ]; then
-    echo -e "${GREEN}Accés correcte mitjançant el domini: ${YELLOW}http://$custom_domain${NC}"
-  else
-    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant el domini: ${YELLOW}http://$custom_domain${NC} (Codi HTTP: $response_code_domain)"
-  fi
+# Comprovar accés per IP (HTTP i HTTPS)
+comprovar_acces "http://$static_ip:8069" "la IP (HTTP)"
+comprovar_acces "https://$static_ip:8069" "la IP (HTTPS)"
 
-  # Comprovar accés pel domini (HTTPS)
-  response_code_domain_https=$(curl -s -o /dev/null -w "%{http_code}" "https://$custom_domain")
-  if [ "$response_code_domain_https" -eq 200 ]; then
-    echo -e "${GREEN}Accés correcte mitjançant el domini: ${YELLOW}https://$custom_domain${NC}"
-  else
-    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant el domini: ${YELLOW}https://$custom_domain${NC} (Codi HTTP: $response_code_domain_https)"
-  fi
+# Comprovar accés pel domini (HTTP i HTTPS)
+comprovar_acces "http://$custom_domain" "el domini (HTTP)"
+comprovar_acces "https://$custom_domain" "el domini (HTTPS)"
+
 
 
 # Mostrar les variables i el missatge final
