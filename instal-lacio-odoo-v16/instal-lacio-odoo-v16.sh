@@ -745,13 +745,13 @@ fi
 echo ""
 echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
 
-# Eliminar configuracions anteriors
-sudo rm -f /etc/nginx/sites-available/$custom_domain
-sudo rm -f /etc/nginx/sites-enabled/$custom_domain
-echo -e "${GREEN}Configuracions anteriors eliminades.${NC}"
+  # Eliminar configuracions anteriors
+  sudo rm -f /etc/nginx/sites-available/$custom_domain
+  sudo rm -f /etc/nginx/sites-enabled/$custom_domain
+  echo -e "${GREEN}Configuracions anteriors eliminades.${NC}"
 
-# Crear el nou fitxer de configuració
-echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
+  # Crear el nou fitxer de configuració
+  echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
 if sudo bash -c 'cat > /etc/nginx/sites-available/'"$custom_domain"' <<EOL
 upstream odoo16 {
     server 127.0.0.1:8069;
@@ -774,10 +774,10 @@ server {
 }
 EOL'; then
   echo -e "${GREEN}Fitxer de configuració creat correctament.${NC}"
-else
-  echo -e "${RED}Error en crear el fitxer de configuració per a $custom_domain.${NC}"
-  exit 1
-fi
+  else
+    echo -e "${RED}Error en crear el fitxer de configuració per a $custom_domain.${NC}"
+    exit 1
+  fi
 
 
 # Activar configuració de Nginx
