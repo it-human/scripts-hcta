@@ -531,9 +531,9 @@ echo -e "${BLUE}Creant usuari Odoo al sistema...${NC}"
 
 
 # Clonar el repositori Odoo 16
-#  echo ""
-#  echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
-#  clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server" "16.0"
+  echo ""
+  echo -e "${BLUE}Clonant el repositori Odoo 16...${NC}"
+  clone_repository_with_retries "https://github.com/odoo/odoo.git" "/opt/odoo/odoo-server" "16.0"
 
 
 # Crear entorn virtual de Python
