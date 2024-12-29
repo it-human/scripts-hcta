@@ -239,7 +239,6 @@ read -p "Vols continuar amb aquests valors? (s/n) [$default_confirm]: " confirm
 echo ""
 echo -e "${BLUE}Actualitzant el servidor...${NC}"
 
-  
   # Actualitzar índexs de repositori i paquets
   if sudo apt update -y && sudo apt upgrade -y; then
     echo -e "${GREEN}El servidor s'ha actualitzat correctament.${NC}"
@@ -391,7 +390,7 @@ echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"
 
   # Descarregar i instal·lar les utilitats necessàries
   echo -e "${BLUE}Instal·lant les utilitats necessàries...${NC}"
-  if sudo apt purge -y postgresql-common; then
+  if sudo apt install -y postgresql-common; then
       echo -e "${GREEN}postgresql-common instal·lat correctament.${NC}"
   else
       echo -e "${RED}Error instal·lant postgresql-common.${NC}"
