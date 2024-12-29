@@ -442,12 +442,6 @@ echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"
   fi
 
 
-# Informar sobre l'actualització del clúster
-echo -e "${YELLOW}Si tens un clúster existent, recorda actualitzar-lo a la nova versió.${NC}"
-echo -e "${YELLOW}Consulta la documentació oficial de PostgreSQL per utilitzar pg_upgradecluster.${NC}"
-
-
-
 # Creació de la base de dades i usuari PostgreSQL per Odoo
 echo ""
 echo -e "${BLUE}Creant base de dades i usuari PostgreSQL per Odoo...${NC}"
