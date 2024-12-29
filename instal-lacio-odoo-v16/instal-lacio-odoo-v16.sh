@@ -263,6 +263,7 @@ echo -e "${BLUE}Actualitzant el servidor...${NC}"
 
   # Reparar paquets trencats si n'hi ha
   sudo apt --fix-broken install -y
+  sudo apt autoremove -y
 
   # Actualitzar índexs de repositori i paquets
   if sudo apt update -y && sudo apt upgrade -y; then
