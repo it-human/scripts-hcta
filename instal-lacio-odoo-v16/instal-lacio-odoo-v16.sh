@@ -228,12 +228,12 @@ echo ""
 default_confirm="s" # Valor per defecte
 read -p "Vols continuar amb aquests valors? (s/n) [$default_confirm]: " confirm
 
-# Si l'usuari prem només Enter, utilitza 's', si escriu qualsevol altra cosa, utilitza 'n'
-confirm=${confirm:-$default_confirm}
-if [[ $confirm != "s" ]]; then
-  echo -e "${RED}Instal·lació cancel·lada.${NC}"
-  exit 1
-fi
+  # Si l'usuari prem només Enter, utilitza 's', si escriu qualsevol altra cosa, utilitza 'n'
+  confirm=${confirm:-$default_confirm}
+  if [[ $confirm != "s" ]]; then
+    echo -e "${RED}Instal·lació cancel·lada.${NC}"
+    exit 1
+  fi
 
 # Actualitzar el servidor
 echo ""
