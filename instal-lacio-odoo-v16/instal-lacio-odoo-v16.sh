@@ -801,9 +801,9 @@ else
   exit 1
 fi
 
-# Generar certificat SSL per al domini
+# Generar certificat SSL per al domini amb correu electrònic
 echo -e "${BLUE}Generant certificat SSL per al domini...${NC}"
-if sudo certbot --nginx --non-interactive --agree-tos -d "$custom_domain"; then
+if sudo certbot --nginx --non-interactive --agree-tos -m "it@humancta.org" -d "$custom_domain"; then
   echo -e "${GREEN}SSL configurat correctament per al domini.${NC}"
 else
   echo -e "${RED}Hi ha hagut un problema configurant SSL per al domini. Revisa els logs per obtenir més informació.${NC}"
