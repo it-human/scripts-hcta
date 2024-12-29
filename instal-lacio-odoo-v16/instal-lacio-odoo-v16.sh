@@ -317,12 +317,13 @@ echo -e "${BLUE}Instal·lant dependències per Wkhtmltopdf...${NC}"
 echo ""
 echo -e "${BLUE}Instal·lant llibreries necessàries...${NC}"
 sudo apt update
-  if sudo apt install -y vim curl wget gpg git gnupg2 software-properties-common apt-transport-https lsb-release ca-certificates build-essential python3 python3-pip python3-dev python3-venv python3-wheel libfreetype6-dev libxml2-dev libzip-dev libsasl2-dev python3-setuptools libjpeg-dev zlib1g-dev libpq-dev libxslt1-dev libldap2-dev libtiff5-dev libopenjp2-7-dev fontconfig fonts-dejavu-core fonts-dejavu-mono libfontconfig1 libfontenc1 libjpeg-turbo8 libxrender1 x11-common xfonts-75dpi xfonts-base xfonts-encodings xfonts-utils ssl-cert; then
+  if sudo apt install -y vim curl wget gpg git gnupg2 software-properties-common apt-transport-https lsb-release ca-certificates build-essential python3 python3-pip python3-dev python3-venv python3-wheel libfreetype6-dev libxml2-dev libzip-dev libsasl2-dev python3-setuptools libjpeg-dev zlib1g-dev libpq-dev libxslt1-dev libldap2-dev libtiff5-dev libopenjp2-7-dev fontconfig fonts-dejavu-core libfontconfig1 libfontenc1 libjpeg-turbo8 libxrender1 x11-common xfonts-75dpi xfonts-base xfonts-encodings xfonts-utils ssl-cert; then
     echo -e "${GREEN}Les llibreries s'han instal·lat correctament.${NC}"
   else
     echo -e "${RED}Error durant la instal·lació de les llibreries.${NC}"
     exit 1
   fi
+  #fonts-dejavu-mono
 
 
 # Instal·lació de Node.js 18.x i NPM
