@@ -255,6 +255,14 @@ echo -e "${BLUE}Actualitzant el servidor...${NC}"
       fi
   fi
 
+  # Eliminar qualsevol instal·lació antiga de postgresql-common
+  echo -e "${BLUE}Eliminant instal·lacions antigues de postgresql-common...${NC}"
+  if sudo apt purge -y postgresql-common && sudo apt autoremove -y && sudo apt autoclean -y; then
+      echo -e "${GREEN}Instal·lacions antigues de postgresql-common eliminades correctament.${NC}"
+  else
+      echo -e "${RED}Error eliminant instal·lacions antigues de postgresql-common.${NC}"
+  fi
+
   # Actualitzar índexs de repositori i paquets
   if sudo apt update -y && sudo apt upgrade -y; then
     echo -e "${GREEN}El servidor s'ha actualitzat correctament.${NC}"
@@ -403,14 +411,6 @@ echo -e "${BLUE}Instal·lant Node.js i NPM (versió 18.x)...${NC}"
 # Instal·lació de l'última versió de PostgreSQL
 echo ""
 echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"  
-
-  # Eliminar qualsevol instal·lació antiga de postgresql-common
-  echo -e "${BLUE}Eliminant instal·lacions antigues de postgresql-common...${NC}"
-  if sudo apt purge -y postgresql-common && sudo apt autoremove -y && sudo apt autoclean -y; then
-      echo -e "${GREEN}Instal·lacions antigues de postgresql-common eliminades correctament.${NC}"
-  else
-      echo -e "${RED}Error eliminant instal·lacions antigues de postgresql-common.${NC}"
-  fi
 
   # Instal·lar les utilitats necessàries
   echo -e "${BLUE}Instal·lant les utilitats necessàries...${NC}"
