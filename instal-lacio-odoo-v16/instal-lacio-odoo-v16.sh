@@ -214,32 +214,6 @@ fi
   echo -e "  Contrasenya de la base de dades: ${YELLOW}$db_password${NC}"
   echo -e "  Correu electrònic de l'administrador: ${YELLOW}$admin_email${NC}"
   echo -e "  Contrasenya de l'administrador: ${YELLOW}$admin_password${NC}"
-  
-  
-  # Funció per descarregar fitxers amb reintents
-function wget_with_retries {
-  local url=$1         # URL del fitxer a descarregar
-  local output=$2      # Nom del fitxer de sortida
-  local retry_limit=5  # Nombre màxim de reintents
-  local retry_count=0
-
-  while [ $retry_count -lt $retry_limit ]; do
-    echo -e "${BLUE}Intentant descarregar $url (Intent $((retry_count + 1))/$retry_limit)...${NC}"
-    wget -O "$output" "$url"
-
-    if [ $? -eq 0 ]; then
-      echo -e "${GREEN}Descarregat correctament: $url.${NC}"
-      return 0
-    else
-      echo -e "${YELLOW}Error descarregant $url. Reintentant en 5 segons...${NC}"
-      sleep 5
-      retry_count=$((retry_count + 1))
-    fi
-  done
-
-  echo -e "${RED}No s'ha pogut descarregar $url després de $retry_limit intents.${NC}"
-  return 1
-}
   echo -e "  Idioma: ${YELLOW}$admin_language${NC}"
   echo -e "  País: ${YELLOW}$admin_country${NC}"
   echo -e "  Instal·lació de dades de mostra: ${YELLOW}$demo_data${NC}"
