@@ -825,6 +825,13 @@ echo -e "${BLUE}Configurant SSL amb Let's Encrypt...${NC}"
     exit 1
   fi
 
+  # Crear carpetes necessàries per a la validació HTTP
+  echo -e "${BLUE}Assegurant l'existència de la carpeta .well-known/acme-challenge...${NC}"
+  sudo mkdir -p /var/www/html/.well-known/acme-challenge
+  sudo chmod -R 755 /var/www/html/.well-known
+  echo -e "${GREEN}Carpeta .well-known/acme-challenge preparada correctament.${NC}"
+
+
   # Generar certificat SSL per al domini
   echo -e "${BLUE}Generant certificat SSL per al domini $custom_domain...${NC}"
   if sudo certbot --nginx --non-interactive --agree-tos -m "$admin_email" -d "$custom_domain"; then
