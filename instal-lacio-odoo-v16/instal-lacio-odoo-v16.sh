@@ -263,9 +263,9 @@ echo -e "${BLUE}Actualitzant el servidor...${NC}"
 
   # Reparar paquets trencats si n'hi ha
   sudo apt --fix-broken install -y
-  sudo apt remove --purge postgresql-common
-  sudo apt autoremove
-  sudo apt autoclean
+  sudo apt remove --purge postgresql-common -y
+  sudo apt autoremove -y
+  sudo apt autoclean -y
 
 
   # Actualitzar índexs de repositori i paquets
