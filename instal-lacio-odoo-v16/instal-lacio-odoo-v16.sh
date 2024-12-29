@@ -413,14 +413,15 @@ echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"
       exit 1
   fi
 
-  # Executar l'script per configurar el repositori oficial
+  # Executar l'script per configurar el repositori oficial sense confirmació
   echo -e "${BLUE}Configurant el repositori oficial de PostgreSQL...${NC}"
-  if sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh; then
+  if echo | sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh; then
       echo -e "${GREEN}Repositori oficial configurat correctament.${NC}"
   else
       echo -e "${RED}Error configurant el repositori oficial de PostgreSQL.${NC}"
       exit 1
   fi
+
 
   # Actualitzar els repositoris
   echo -e "${BLUE}Actualitzant els repositoris...${NC}"
