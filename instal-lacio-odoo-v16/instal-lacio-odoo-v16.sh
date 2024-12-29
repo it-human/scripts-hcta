@@ -478,13 +478,14 @@ echo -e "${BLUE}Configurant autenticació PostgreSQL...${NC}"
 echo ""
 echo -e "${BLUE}Creant usuari Odoo al sistema...${NC}"
 
-# Comprovar si l'usuari ja existeix
+  # Comprovar si l'usuari ja existeix
   if id "odoo" &>/dev/null; then
     echo -e "${YELLOW}L'usuari «odoo» ja existeix. Saltant aquest pas.${NC}"
   else
     sudo adduser --system --group --home=/opt/odoo --shell=/bin/bash odoo
     echo -e "${GREEN}Usuari «odoo» creat correctament.${NC}"
   fi
+  
   # Comprovar si el directori ja existeix
   if [ -d "/opt/odoo" ]; then
     echo -e "${YELLOW}El directori /opt/odoo ja existeix. Saltant aquest pas.${NC}"
