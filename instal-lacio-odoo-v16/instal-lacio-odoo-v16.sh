@@ -752,6 +752,7 @@ echo -e "${BLUE}Configurant Nginx per Odoo...${NC}"
 
   # Crear el nou fitxer de configuració
   echo -e "${BLUE}Creant el fitxer de configuració per a $custom_domain...${NC}"
+  # Aquesta configuració defineix un servidor Nginx per gestionar sol·licituds HTTP per a un domini específic. Inclou un grup d'upstream per al backend d'Odoo i configuració per validar SSL amb Let's Encrypt. També s'especifica la gestió de capçaleres per redirigir trànsit al backend i permetre validació de certificats. El bloc upstream defineix el backend Odoo, que està escoltant al port 8069 a la IP local. Això permet que Nginx faci de proxy invers redirigint les sol·licituds HTTP cap a Odoo. El bloc server configura el servidor HTTP al port 80. La carpeta /.well-known/acme-challenge/ s'utilitza per la validació del domini amb Let's Encrypt. Totes les altres sol·licituds es redirigeixen al backend Odoo definit a l'upstream. Capçaleres addicionals s'envien al backend per garantir compatibilitat i seguretat, incloent la indicació que el protocol és HTTPS. Les sol·licituds es registren en fitxers de registre específics per a accessos i errors, útils per depuració.
 if sudo bash -c 'cat > /etc/nginx/sites-available/'"$custom_domain"' <<EOL
 upstream odoo16 {
     server 127.0.0.1:8069;
@@ -770,9 +771,9 @@ server {
 
     location / {
         proxy_pass http://odoo16;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto https;
     }
 }
