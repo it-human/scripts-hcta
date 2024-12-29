@@ -259,7 +259,6 @@ echo -e "${BLUE}Actualitzant el servidor...${NC}"
   sudo fuser -vki /var/lib/dpkg/lock
   sudo fuser -vki /var/lib/apt/lists/lock
   sudo fuser -vki /var/cache/apt/archives/lock
-  sudo dpkg --configure -a
 
   # Reparar paquets trencats si n'hi ha
   sudo apt --fix-broken install -y
