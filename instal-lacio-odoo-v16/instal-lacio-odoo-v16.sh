@@ -239,6 +239,22 @@ read -p "Vols continuar amb aquests valors? (s/n) [$default_confirm]: " confirm
 echo ""
 echo -e "${BLUE}Actualitzant el servidor...${NC}"
 
+  # Reparar i eliminar instal·lacions antigues si cal
+  echo -e "${BLUE}Revisant i reparant instal·lacions existents...${NC}"
+  sudo fuser -vki /var/lib/dpkg/lock
+  sudo fuser -vki /var/lib/apt/lists/lock
+  sudo fuser -vki /var/cache/apt/archives/lock
+  if sudo dpkg --configure -a && sudo apt --fix-broken install -y; then
+      echo -e "${GREEN}Problemes reparats correctament.${NC}"
+  else
+      echo -e "${YELLOW}Alguns problemes persisteixen. Verificant dpkg-error.sh...${NC}"
+      if [ ! -f /usr/share/dpkg/sh/dpkg-error.sh ]; then
+          echo -e "${BLUE}Creant fitxer dpkg-error.sh...${NC}"
+          sudo mkdir -p /usr/share/dpkg/sh/ && sudo touch /usr/share/dpkg/sh/dpkg-error.sh && sudo chmod +x /usr/share/dpkg/sh/dpkg-error.sh
+          echo -e "${GREEN}Fitxer dpkg-error.sh creat correctament.${NC}"
+      fi
+  fi
+
   # Actualitzar índexs de repositori i paquets
   if sudo apt update -y && sudo apt upgrade -y; then
     echo -e "${GREEN}El servidor s'ha actualitzat correctament.${NC}"
@@ -386,23 +402,7 @@ echo -e "${BLUE}Instal·lant Node.js i NPM (versió 18.x)...${NC}"
 
 # Instal·lació de l'última versió de PostgreSQL
 echo ""
-echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"
-
-  # Reparar i eliminar instal·lacions antigues si cal
-  echo -e "${BLUE}Revisant i reparant instal·lacions existents...${NC}"
-  sudo fuser -vki /var/lib/dpkg/lock
-  sudo fuser -vki /var/lib/apt/lists/lock
-  sudo fuser -vki /var/cache/apt/archives/lock
-  if sudo dpkg --configure -a && sudo apt --fix-broken install -y; then
-      echo -e "${GREEN}Problemes reparats correctament.${NC}"
-  else
-      echo -e "${YELLOW}Alguns problemes persisteixen. Verificant dpkg-error.sh...${NC}"
-      if [ ! -f /usr/share/dpkg/sh/dpkg-error.sh ]; then
-          echo -e "${BLUE}Creant fitxer dpkg-error.sh...${NC}"
-          sudo mkdir -p /usr/share/dpkg/sh/ && sudo touch /usr/share/dpkg/sh/dpkg-error.sh && sudo chmod +x /usr/share/dpkg/sh/dpkg-error.sh
-          echo -e "${GREEN}Fitxer dpkg-error.sh creat correctament.${NC}"
-      fi
-  fi
+echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"  
 
   # Eliminar qualsevol instal·lació antiga de postgresql-common
   echo -e "${BLUE}Eliminant instal·lacions antigues de postgresql-common...${NC}"
