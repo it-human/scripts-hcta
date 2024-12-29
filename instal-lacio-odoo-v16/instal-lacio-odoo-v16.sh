@@ -388,6 +388,14 @@ echo -e "${BLUE}Instal·lant Node.js i NPM (versió 18.x)...${NC}"
 echo ""
 echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"
 
+  # Eliminar qualsevol instal·lació antiga de postgresql-common
+echo -e "${BLUE}Eliminant instal·lacions antigues de postgresql-common...${NC}"
+if sudo apt purge -y postgresql-common && sudo apt autoremove -y && sudo apt autoclean -y; then
+    echo -e "${GREEN}Instal·lacions antigues de postgresql-common eliminades correctament.${NC}"
+else
+    echo -e "${RED}Error eliminant instal·lacions antigues de postgresql-common.${NC}"
+fi
+
   # Descarregar i instal·lar les utilitats necessàries
   echo -e "${BLUE}Instal·lant les utilitats necessàries...${NC}"
   if sudo apt install -y postgresql-common; then
@@ -638,7 +646,7 @@ EOL";
     echo -e "${RED}Error en activar el servei d'Odoo.${NC}"
     exit 1
   fi
-  
+
 
 # Instal·lar mòduls bàsics
   #for module in "${modules[@]}"; do
