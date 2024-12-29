@@ -400,25 +400,25 @@ echo -e "${BLUE}Instal·lant Node.js i NPM (versió 18.x)...${NC}"
   echo -e "${GREEN}Neteja completada.${NC}"
 
 
-# Instal·lació de PostgreSQL 14
+# Instal·lació de l'última versió de PostgreSQL
 echo ""
-echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
+echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"
 
-  # Instal·lar el paquet postgresql-common
-  echo -e "${BLUE}Instal·lant postgresql-common...${NC}"
+  # Descarregar i instal·lar les utilitats necessàries
+  echo -e "${BLUE}Instal·lant les utilitats necessàries...${NC}"
   if sudo apt install -y postgresql-common; then
-      echo -e "${GREEN}Paquet postgresql-common instal·lat correctament.${NC}"
+      echo -e "${GREEN}postgresql-common instal·lat correctament.${NC}"
   else
-      echo -e "${RED}Error instal·lant el paquet postgresql-common.${NC}"
+      echo -e "${RED}Error instal·lant postgresql-common.${NC}"
       exit 1
   fi
 
-  # Executar l'script automàtic per afegir el repositori de PostgreSQL
-  echo -e "${BLUE}Executant l'script per configurar el repositori de PostgreSQL...${NC}"
+  # Executar l'script per configurar el repositori oficial
+  echo -e "${BLUE}Configurant el repositori oficial de PostgreSQL...${NC}"
   if sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh; then
-      echo -e "${GREEN}Repositori de PostgreSQL configurat correctament.${NC}"
+      echo -e "${GREEN}Repositori oficial configurat correctament.${NC}"
   else
-      echo -e "${RED}Error configurant el repositori de PostgreSQL.${NC}"
+      echo -e "${RED}Error configurant el repositori oficial de PostgreSQL.${NC}"
       exit 1
   fi
 
@@ -431,14 +431,20 @@ echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
       exit 1
   fi
 
-  # Instal·lar PostgreSQL 14
-  echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
-  if sudo apt -y install postgresql-14 postgresql-client-14; then
-      echo -e "${GREEN}PostgreSQL 14 instal·lat correctament.${NC}"
+  # Instal·lar l'última versió de PostgreSQL
+  echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"
+  if sudo apt -y install postgresql; then
+      echo -e "${GREEN}L'última versió de PostgreSQL s'ha instal·lat correctament.${NC}"
   else
-      echo -e "${RED}Error instal·lant PostgreSQL 14.${NC}"
+      echo -e "${RED}Error instal·lant PostgreSQL.${NC}"
       exit 1
   fi
+
+
+# Informar sobre l'actualització del clúster
+echo -e "${YELLOW}Si tens un clúster existent, recorda actualitzar-lo a la nova versió.${NC}"
+echo -e "${YELLOW}Consulta la documentació oficial de PostgreSQL per utilitzar pg_upgradecluster.${NC}"
+
 
 
 # Creació de la base de dades i usuari PostgreSQL per Odoo
