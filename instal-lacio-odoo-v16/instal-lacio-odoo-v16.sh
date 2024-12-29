@@ -388,15 +388,31 @@ echo -e "${BLUE}Instal·lant Node.js i NPM (versió 18.x)...${NC}"
 echo ""
 echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"
 
-  # Eliminar qualsevol instal·lació antiga de postgresql-common
-echo -e "${BLUE}Eliminant instal·lacions antigues de postgresql-common...${NC}"
-if sudo apt purge -y postgresql-common && sudo apt autoremove -y && sudo apt autoclean -y; then
-    echo -e "${GREEN}Instal·lacions antigues de postgresql-common eliminades correctament.${NC}"
-else
-    echo -e "${RED}Error eliminant instal·lacions antigues de postgresql-common.${NC}"
-fi
+  # Reparar i eliminar instal·lacions antigues si cal
+  echo -e "${BLUE}Revisant i reparant instal·lacions existents...${NC}"
+  sudo fuser -vki /var/lib/dpkg/lock
+  sudo fuser -vki /var/lib/apt/lists/lock
+  sudo fuser -vki /var/cache/apt/archives/lock
+  if sudo dpkg --configure -a && sudo apt --fix-broken install -y; then
+      echo -e "${GREEN}Problemes reparats correctament.${NC}"
+  else
+      echo -e "${YELLOW}Alguns problemes persisteixen. Verificant dpkg-error.sh...${NC}"
+      if [ ! -f /usr/share/dpkg/sh/dpkg-error.sh ]; then
+          echo -e "${BLUE}Creant fitxer dpkg-error.sh...${NC}"
+          sudo mkdir -p /usr/share/dpkg/sh/ && sudo touch /usr/share/dpkg/sh/dpkg-error.sh && sudo chmod +x /usr/share/dpkg/sh/dpkg-error.sh
+          echo -e "${GREEN}Fitxer dpkg-error.sh creat correctament.${NC}"
+      fi
+  fi
 
-  # Descarregar i instal·lar les utilitats necessàries
+  # Eliminar qualsevol instal·lació antiga de postgresql-common
+  echo -e "${BLUE}Eliminant instal·lacions antigues de postgresql-common...${NC}"
+  if sudo apt purge -y postgresql-common && sudo apt autoremove -y && sudo apt autoclean -y; then
+      echo -e "${GREEN}Instal·lacions antigues de postgresql-common eliminades correctament.${NC}"
+  else
+      echo -e "${RED}Error eliminant instal·lacions antigues de postgresql-common.${NC}"
+  fi
+
+  # Instal·lar les utilitats necessàries
   echo -e "${BLUE}Instal·lant les utilitats necessàries...${NC}"
   if sudo apt install -y postgresql-common; then
       echo -e "${GREEN}postgresql-common instal·lat correctament.${NC}"
@@ -405,15 +421,19 @@ fi
       exit 1
   fi
 
-  # Executar l'script per configurar el repositori oficial
+  # Configurar el repositori oficial de PostgreSQL
   echo -e "${BLUE}Configurant el repositori oficial de PostgreSQL...${NC}"
-  if echo | sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh; then
-      echo -e "${GREEN}Repositori oficial configurat correctament.${NC}"
+  if [ -f "/usr/share/postgresql-common/pgdg/apt.postgresql.org.sh" ]; then
+      if echo | sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh; then
+          echo -e "${GREEN}Repositori oficial configurat correctament.${NC}"
+      else
+          echo -e "${RED}Error configurant el repositori oficial de PostgreSQL.${NC}"
+          exit 1
+      fi
   else
-      echo -e "${RED}Error configurant el repositori oficial de PostgreSQL.${NC}"
+      echo -e "${RED}L'script de configuració del repositori oficial no està disponible.${NC}"
       exit 1
   fi
-
 
   # Actualitzar els repositoris
   echo -e "${BLUE}Actualitzant els repositoris...${NC}"
@@ -432,6 +452,7 @@ fi
       echo -e "${RED}Error instal·lant PostgreSQL.${NC}"
       exit 1
   fi
+
 
 
 # Creació de la base de dades i usuari PostgreSQL per Odoo
