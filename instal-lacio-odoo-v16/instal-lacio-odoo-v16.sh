@@ -761,6 +761,10 @@ server {
     listen 80;
     server_name intranet.momoescolaviva.cat;
 
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
     access_log /var/log/nginx/odoo.access.log;
     error_log /var/log/nginx/odoo.error.log;
 
