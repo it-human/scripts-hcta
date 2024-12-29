@@ -255,6 +255,15 @@ echo -e "${BLUE}Actualitzant el servidor...${NC}"
     exit 1
   fi
 
+  # Desbloquejar processos si hi ha bloquejos
+  sudo fuser -vki /var/lib/dpkg/lock
+  sudo fuser -vki /var/lib/apt/lists/lock
+  sudo fuser -vki /var/cache/apt/archives/lock
+  sudo apt remove --purge postgresql-common -y
+  sudo apt autoremove -y
+  sudo apt autoclean -y
+
+
   # Actualitzar índexs de repositori i paquets
   if sudo apt update -y && sudo apt upgrade -y; then
     echo -e "${GREEN}El servidor s'ha actualitzat correctament.${NC}"
