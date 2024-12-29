@@ -153,7 +153,6 @@ instance_name=$(prompt_required_no_default "Introdueix el nom de la instància d
 db_name_default=$(echo "${instance_name//[-]/_}_db" | tr '[:upper:]' '[:lower:]')
 db_user_default=$(echo "${instance_name//[-]/_}_user" | tr '[:upper:]' '[:lower:]')
 
-
 # Generar contrasenyes aleatòries per defecte
 master_password_default=$(generate_random_password)
 db_password_default=$(generate_random_password)
@@ -425,7 +424,6 @@ else
   echo -e "${RED}Error instal·lant PostgreSQL 14.${NC}"
   exit 1
 fi
-
 
 
 # Creació de la base de dades i usuari PostgreSQL per Odoo
