@@ -239,23 +239,7 @@ read -p "Vols continuar amb aquests valors? (s/n) [$default_confirm]: " confirm
 echo ""
 echo -e "${BLUE}Actualitzant el servidor...${NC}"
 
-  # Eliminar totes les claus GPG del directori keyrings
-  if sudo rm -f /usr/share/keyrings/*.gpg; then
-    echo -e "${GREEN}Claus GPG eliminades correctament.${NC}"
-  else
-    echo -e "${RED}Error eliminant les claus GPG.${NC}"
-    exit 1
-  fi
-
-  # Eliminar configuracions de repositoris personalitzats
-  if sudo rm -f /etc/apt/sources.list.d/*.list; then
-    echo -e "${GREEN}Repositoris personalitzats eliminats correctament.${NC}"
-  else
-    echo -e "${RED}Error eliminant els fitxers de configuració de repositoris.${NC}"
-    exit 1
-  fi
-
-
+  
   # Actualitzar índexs de repositori i paquets
   if sudo apt update -y && sudo apt upgrade -y; then
     echo -e "${GREEN}El servidor s'ha actualitzat correctament.${NC}"
@@ -414,7 +398,7 @@ echo -e "${BLUE}Instal·lant l'última versió de PostgreSQL...${NC}"
       exit 1
   fi
 
-  # Executar l'script per configurar el repositori oficial sense confirmació
+  # Executar l'script per configurar el repositori oficial
   echo -e "${BLUE}Configurant el repositori oficial de PostgreSQL...${NC}"
   if echo | sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh; then
       echo -e "${GREEN}Repositori oficial configurat correctament.${NC}"
