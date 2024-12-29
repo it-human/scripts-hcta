@@ -404,51 +404,41 @@ echo -e "${BLUE}Instal·lant Node.js i NPM (versió 18.x)...${NC}"
 echo ""
 echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
 
-  # Instal·lar requisits previs
-  echo -e "${BLUE}Instal·lant requisits previs...${NC}"
-  if sudo apt install -y curl ca-certificates; then
-      echo -e "${GREEN}Requisits previs instal·lats correctament.${NC}"
-  else
-      echo -e "${RED}Error instal·lant els requisits previs.${NC}"
-      exit 1
-  fi
+# Instal·lar el paquet postgresql-common
+echo -e "${BLUE}Instal·lant postgresql-common...${NC}"
+if sudo apt install -y postgresql-common; then
+    echo -e "${GREEN}Paquet postgresql-common instal·lat correctament.${NC}"
+else
+    echo -e "${RED}Error instal·lant el paquet postgresql-common.${NC}"
+    exit 1
+fi
 
-  # Afegir la clau GPG del repositori
-  echo -e "${BLUE}Afegint la clau GPG de PostgreSQL...${NC}"
-  if curl_with_retries "https://www.postgresql.org/media/keys/ACCC4CF8.asc" "/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc"; then
-      echo -e "${GREEN}Clau GPG de PostgreSQL descarregada correctament.${NC}"
-  else
-      echo -e "${RED}Error descarregant la clau GPG de PostgreSQL.${NC}"
-      exit 1
-  fi
+# Executar l'script automàtic per afegir el repositori de PostgreSQL
+echo -e "${BLUE}Executant l'script per configurar el repositori de PostgreSQL...${NC}"
+if sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh; then
+    echo -e "${GREEN}Repositori de PostgreSQL configurat correctament.${NC}"
+else
+    echo -e "${RED}Error configurant el repositori de PostgreSQL.${NC}"
+    exit 1
+fi
 
-  # Afegir el repositori de PostgreSQL
-  echo -e "${BLUE}Afegint el repositori de PostgreSQL...${NC}"
-  if echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list; then
-      echo -e "${GREEN}Repositori de PostgreSQL afegit correctament.${NC}"
-  else
-      echo -e "${RED}Error afegint el repositori de PostgreSQL.${NC}"
-      exit 1
-  fi
+# Actualitzar els repositoris
+echo -e "${BLUE}Actualitzant els repositoris...${NC}"
+if sudo apt update; then
+    echo -e "${GREEN}Repositoris actualitzats correctament.${NC}"
+else
+    echo -e "${RED}Error actualitzant els repositoris.${NC}"
+    exit 1
+fi
 
-  # Actualitzar els repositoris
-  echo -e "${BLUE}Actualitzant els repositoris...${NC}"
-  if sudo apt update; then
-      echo -e "${GREEN}Repositoris actualitzats correctament.${NC}"
-  else
-      echo -e "${RED}Error actualitzant els repositoris.${NC}"
-      exit 1
-  fi
-
-  # Instal·lar PostgreSQL 14
-  echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
-  if sudo apt -y install postgresql-14 postgresql-client-14; then
-      echo -e "${GREEN}PostgreSQL 14 instal·lat correctament.${NC}"
-  else
-      echo -e "${RED}Error instal·lant PostgreSQL 14.${NC}"
-      exit 1
-  fi
-
+# Instal·lar PostgreSQL 14
+echo -e "${BLUE}Instal·lant PostgreSQL 14...${NC}"
+if sudo apt -y install postgresql-14 postgresql-client-14; then
+    echo -e "${GREEN}PostgreSQL 14 instal·lat correctament.${NC}"
+else
+    echo -e "${RED}Error instal·lant PostgreSQL 14.${NC}"
+    exit 1
+fi
 
 
 # Creació de la base de dades i usuari PostgreSQL per Odoo
