@@ -638,37 +638,7 @@ EOL";
     echo -e "${RED}Error en activar el servei d'Odoo.${NC}"
     exit 1
   fi
-
-
-# Iniciar i habilitar el servei
-echo ""
-echo -e "${BLUE}Iniciant i habilitant el servei d'Odoo...${NC}"
-
-  # Recarregar systemd
-  if sudo systemctl daemon-reload; then
-    echo -e "${GREEN}Systemd recarregat correctament.${NC}"
-  else
-    echo -e "${RED}Error en recarregar systemd.${NC}"
-    exit 1
-  fi
-
-  # Iniciar el servei
-  if sudo systemctl start odoo-server; then
-    echo -e "${GREEN}El servei d'Odoo s'ha iniciat correctament.${NC}"
-  else
-    echo -e "${RED}Error en iniciar el servei d'Odoo.${NC}"
-    sudo journalctl -xeu odoo-server | tail -n 20
-    exit 1
-  fi
-
-  # Habilitar el servei
-  if sudo systemctl enable odoo-server; then
-    echo -e "${GREEN}El servei d'Odoo s'ha habilitat correctament per arrencar amb el sistema.${NC}"
-  else
-    echo -e "${RED}Error en habilitar el servei d'Odoo.${NC}"
-    exit 1
-  fi
-
+  
 
 # Instal·lar mòduls bàsics
   #for module in "${modules[@]}"; do
