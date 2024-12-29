@@ -848,36 +848,36 @@ echo ""
 echo -e "${BLUE}Verificant l'accés a Odoo...${NC}"
 
   # Comprovar accés per IP (HTTP)
-response_code_ip=$(curl -s -o /dev/null -w "%{http_code}" "http://$static_ip:8069")
-if [ "$response_code_ip" -eq 200 ]; then
-  echo -e "${GREEN}Accés correcte mitjançant la IP: ${YELLOW}http://$static_ip:8069${NC}"
-else
-  echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant la IP: ${YELLOW}http://$static_ip:8069${NC} (Codi HTTP: $response_code_ip)"
-fi
+  response_code_ip=$(curl -s -o /dev/null -w "%{http_code}" "http://$static_ip:8069")
+  if [ "$response_code_ip" -eq 200 ]; then
+    echo -e "${GREEN}Accés correcte mitjançant la IP: ${YELLOW}http://$static_ip:8069${NC}"
+  else
+    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant la IP: ${YELLOW}http://$static_ip:8069${NC} (Codi HTTP: $response_code_ip)"
+  fi
 
-# Comprovar accés per IP (HTTPS)
-response_code_ip_https=$(curl -s -o /dev/null -w "%{http_code}" "https://$static_ip:8069")
-if [ "$response_code_ip_https" -eq 200 ]; then
-  echo -e "${GREEN}Accés correcte mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC}"
-else
-  echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC} (Codi HTTP: $response_code_ip_https)"
-fi
+  # Comprovar accés per IP (HTTPS)
+  response_code_ip_https=$(curl -s -o /dev/null -w "%{http_code}" "https://$static_ip:8069")
+  if [ "$response_code_ip_https" -eq 200 ]; then
+    echo -e "${GREEN}Accés correcte mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC}"
+  else
+    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant la IP: ${YELLOW}https://$static_ip:8069${NC} (Codi HTTP: $response_code_ip_https)"
+  fi
 
-# Comprovar accés pel domini (HTTP)
-response_code_domain=$(curl -s -o /dev/null -w "%{http_code}" "http://$custom_domain")
-if [ "$response_code_domain" -eq 200 ]; then
-  echo -e "${GREEN}Accés correcte mitjançant el domini: ${YELLOW}http://$custom_domain${NC}"
-else
-  echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant el domini: ${YELLOW}http://$custom_domain${NC} (Codi HTTP: $response_code_domain)"
-fi
+  # Comprovar accés pel domini (HTTP)
+  response_code_domain=$(curl -s -o /dev/null -w "%{http_code}" "http://$custom_domain")
+  if [ "$response_code_domain" -eq 200 ]; then
+    echo -e "${GREEN}Accés correcte mitjançant el domini: ${YELLOW}http://$custom_domain${NC}"
+  else
+    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant el domini: ${YELLOW}http://$custom_domain${NC} (Codi HTTP: $response_code_domain)"
+  fi
 
-# Comprovar accés pel domini (HTTPS)
-response_code_domain_https=$(curl -s -o /dev/null -w "%{http_code}" "https://$custom_domain")
-if [ "$response_code_domain_https" -eq 200 ]; then
-  echo -e "${GREEN}Accés correcte mitjançant el domini: ${YELLOW}https://$custom_domain${NC}"
-else
-  echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant el domini: ${YELLOW}https://$custom_domain${NC} (Codi HTTP: $response_code_domain_https)"
-fi
+  # Comprovar accés pel domini (HTTPS)
+  response_code_domain_https=$(curl -s -o /dev/null -w "%{http_code}" "https://$custom_domain")
+  if [ "$response_code_domain_https" -eq 200 ]; then
+    echo -e "${GREEN}Accés correcte mitjançant el domini: ${YELLOW}https://$custom_domain${NC}"
+  else
+    echo -e "${RED}No s'ha pogut accedir a Odoo mitjançant el domini: ${YELLOW}https://$custom_domain${NC} (Codi HTTP: $response_code_domain_https)"
+  fi
 
 
 # Mostrar les variables i el missatge final
